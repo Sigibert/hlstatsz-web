@@ -296,8 +296,6 @@ class DB_mysql
 	{
 		error(
 			"<b>Database Error</b><br />\n<br />\n" .
-			"<i>Server Address:</i> $this->db_addr<br />\n" .
-			"<i>Server Username:</i> $this->db_user<br /><br />\n" .
 			"<i>Error Diagnostic:</i><br />\n$message<br /><br />\n" .
 			"<i>Server Error:</i> (" . @mysqli_errno($this->link) . ") " . @mysqli_error($this->link) . "<br /><br />\n" .
 			"<i>Last SQL Query:</i><br />\n<pre>$this->last_query</pre>",

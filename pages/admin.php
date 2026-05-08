@@ -961,7 +961,21 @@ function checkVersion() {
       echo '<div>'.(!extension_loaded('mbstring') ? "❌ PHP extension 'mbstring' is not loaded" : "✔️ PHP extension 'mbstring' is loaded").'</div>';
       echo '<div>'.(!extension_loaded('sockets') ? "❌ PHP extension 'sockets' is not loaded" : "✔️ PHP extension 'sockets' is loaded").'</div>';
     echo '</div>';
-    
+    echo '<div style="margin:15px 0;">';
+    $pfolder = IMAGE_PATH .'/progress';
+    if (is_dir($pfolder)) {
+        if (is_writable($pfolder)) {
+            echo "<div>✔️ Folder $pfolder is writable</div>";
+        } else {
+            if (@chmod($pfolder, 0755) && is_writable($pfolder)) {
+                echo "<div>✔️ Permissions changed to 0755. Folder $pfolder is now writable.</div>";
+            } else {
+                echo "<div>❌ Failed to make Folder $pfolder writable. Check ownership and server settings.</div>";
+            }
+        }
+    }
+    echo '</div>';
+
     if ($needsupdate) {
         echo '<form method="post" action="?mode=admin&task=updater" name="updater" class="hlstats-updater">
             <input type="hidden" name="run" value="1">

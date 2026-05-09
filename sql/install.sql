@@ -4002,7 +4002,7 @@ INSERT INTO `hlstats_Options` (`keyname`, `value`, `opttype`) VALUES
 ('SkillMaxChange', '25',0),
 ('SkillMinChange', '2',0),
 ('PlayerMinKills', '50',0),
-('DeleteDays', '28',1),
+('DeleteDays', '365',1),
 ('UseTimestamp', '0',0),
 ('MinActivity', '28',2),
 ('AllowOnlyConfigServers', '1',0),

@@ -1,5 +1,6 @@
 const Fetch = {
     defaultId: null,
+    _ctrl: new Map(),
 
     ini(id) {
         this.defaultId = id;
@@ -13,6 +14,11 @@ const Fetch = {
             el = document.getElementById(el);
         }
 
+        const key = el ?? '__root__';
+        this._ctrl.get(key)?.abort();
+        const ctrl = new AbortController();
+        this._ctrl.set(key, ctrl);
+
         if (his) {
             if (!history.state?.fetchUrl) {
                 history.replaceState({ fetchUrl: location.href, fetchTarget: el?.id ?? null }, "");
@@ -24,50 +30,59 @@ const Fetch = {
             el.classList.add("is-loading");
         }
 
-        const response = await fetch(url, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest"
-            }
-        });
+        try {
+            const response = await fetch(url, {
+                signal: ctrl.signal,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
 
-        if (!response.ok) throw new Error(await response.text());
+            if (!response.ok) throw new Error(await response.text());
 
-        const reader  = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
+            const reader  = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
 
-        let buffer = "";
-        let lastUpdate = 0;
+            let buffer = "";
+            let lastUpdate = 0;
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            buffer += decoder.decode(value, { stream: true });
+                buffer += decoder.decode(value, { stream: true });
 
-            if (el) {
-                const now = performance.now();
-                if (now - lastUpdate > 50) {
-                    el.innerHTML = buffer;
-                    lastUpdate = now;
+                if (el) {
+                    const now = performance.now();
+                    if (now - lastUpdate > 50) {
+                        el.innerHTML = buffer;
+                        lastUpdate = now;
+                    }
                 }
             }
-        }
 
-        if (el) {
-            el.classList.remove("is-loading");
-            el.innerHTML = buffer;
-            el.querySelectorAll('[data-fetch-url]').forEach(function(sub) {
-                Fetch.run(sub.dataset.fetchUrl, sub, false);
-            });
-            el.dispatchEvent(new CustomEvent("fetch:loaded", {
-            detail: {
-              url,
-              html: buffer
+            if (el) {
+                el.classList.remove("is-loading");
+                el.innerHTML = buffer;
+                el.querySelectorAll('[data-fetch-url]').forEach(function(sub) {
+                    Fetch.run(sub.dataset.fetchUrl, sub, false);
+                });
+                el.dispatchEvent(new CustomEvent("fetch:loaded", {
+                detail: {
+                  url,
+                  html: buffer
+                }
+              }));
             }
-          }));
-        }
 
-        return buffer;
+            return buffer;
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            if (el) el.classList.remove("is-loading");
+            throw err;
+        } finally {
+            this._ctrl.delete(key);
+        }
     }
 
 };

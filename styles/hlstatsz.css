@@ -911,7 +911,7 @@ input:focus::placeholder{
     display: inline-block;
     font-size: 11px;
     opacity: .6;
-    transform: rotate(270deg);
+    transform: rotate(-90deg);
     transition: transform .15s ease, opacity .15s ease;
     margin-right: 12px;
     vertical-align: middle;

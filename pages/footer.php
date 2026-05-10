@@ -15,7 +15,7 @@ For current support and updates:
 */
 if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 
-    global $db;
+    global $db, $g_options;
 ?>
 </div>
 <div style="clear:both;"></div>

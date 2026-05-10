@@ -19,7 +19,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 
 	$query = "
             SELECT COUNT(*) AS all_players,
-            COUNT(CASE WHEN lastAddress <> '' THEN 1 END) AS total_players
+            COUNT(CASE WHEN lastAddress <> '' AND hideranking <> 1 THEN 1 END) AS total_players
             FROM hlstats_Players
             WHERE game = '$game';
 	";

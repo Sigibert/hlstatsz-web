@@ -1300,7 +1300,7 @@ display: flex;
   opacity:0.7;
 }
 
-.hlstats-award:hover{
+.hlstats-center .hlstats-award:hover{
   transform: translateY(-2px);
   border-color: var(--card-border-color-hover);
   filter: brightness(1.05);

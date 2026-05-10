@@ -1,6 +1,10 @@
 ### 📈 Web Frontend for HLstatsZ
+HLstatsZ continues the long lineage of open-source server stats tools for Half-Life and Source games:
+**HLstats → HLstatsX → HLstatsX:CE → HLstatsZ**
+
 - Official version Z
-- 3 Beautiful Main Themes (Steam blue, dark and Light)
+- **Modern yet familiar** — clean responsive layout that respects the original HLstatsX look and feel
+- 3 Beautiful Main Themes (Steam blue, Dark and Light)
 - Responsive Design highly customizable with .css, .js and .php files
 - True Rank
 - OpenStreetMap
@@ -8,8 +12,16 @@
 - Secure Steam Login
 - Better Admin settings
 - Min PHP 8+
-- Min SQL 8+, 9+ (All Queries are fast and optimized)
+- Min MySQL/MariaDB 8+ (all queries are fast and optimized)
 - Recommended with [HLstats v2](https://github.com/SnipeZilla/HLSTATS-2)
+
+### Requirements
+| Component | Minimum |
+|-----------|---------|
+| PHP | 8.0+ |
+| MySQL / MariaDB | 8.0+ |
+| Web server | Apache / Nginx |
+| HLstats daemon | [HLstats v2](https://github.com/SnipeZilla/HLSTATS-2) |
 
 ### Weapons
 <img width="720" height="701" alt="image" src="https://github.com/user-attachments/assets/6ca66c72-ba13-4173-8e52-c67262e23fb8" />
@@ -32,10 +44,10 @@
 ### Hitbox (superlogs)
 <img width="1143" height="455" alt="image" src="https://github.com/user-attachments/assets/177f14bb-4b82-4d46-8f43-0995a6ad9514" />
 
-### Admin
+### Admin — Overview
 <img width="1172" height="637" alt="image" src="https://github.com/user-attachments/assets/63e3821c-daf9-4d34-bed7-01efad5acb86" />
 
-### Admin
+### Admin — Server Management
 <img width="1356" height="1307" alt="image" src="https://github.com/user-attachments/assets/526de317-37ce-4a4d-bded-30b17558597d" />
 
 ### Discord Channel

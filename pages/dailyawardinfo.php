@@ -142,7 +142,7 @@ if (!is_ajax()) {
                   <td class="nowrap"><span class="hlstats-name">'.$res['awardTime'].'</span></a></td>
                   <td class="hlstats-main-description left">
                       <span class="hlstats-flag"><img src="'.getFlag($res['flag']).'" title="'.$res['country'].'" alt="'.$res['flag'].'"></span>
-                      <a href="?mode=playerinfo&amp;player='.$res['playerId'].'" title=""></span><span class="hlstats-name">'.htmlspecialchars($res['lastName'] ?? '').'</span></a>
+                      <a href="?mode=playerinfo&amp;player='.$res['playerId'].'" title=""></span><span class="hlstats-name">'.htmlspecialchars($res['lastName'] ?? '').'&nbsp;</span></a>
                   </td>
                   <td class="nowrap">'.$res['count'].' times</td>
                   </tr>'; $i++;

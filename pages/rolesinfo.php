@@ -182,7 +182,7 @@ Fetch.ini('rolesinfo');
 <?php
  } else { echo '<p class="hlstats-no-data"><em>Not enough data</em></p>'; }
 ?>
- <div><a href="?mode=roles&amp;game=<?= $game ?>&amp;tab=ranks">&larr;&nbsp;Roles Statistics</a></div>
+<div class="hlstats-note"><a href="?mode=roles&amp;game=<?= $game ?>&amp;tab=ranks">&larr;&nbsp;Role Statistics</a></div>
 <?php if ($g_options['DeleteDays']) { ?>
 <div class="hlstats-note">
     Items above are generated from the most recent <?= $g_options['DeleteDays'] ?> days of activity.

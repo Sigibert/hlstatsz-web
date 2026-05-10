@@ -105,7 +105,7 @@ if ($db->num_rows($result)) {
 echo '<div class="responsive-table">
 <table class="countries-table">
     <tr>
-        <th class="'. isSorted('rank_position', $sort, $sortorder). '">'. headerUrl('rank_position',['sort','sortorder'],'countries') .'Rank</a></th>
+        <th class="hlstats-ranking nowrap'. isSorted('rank_position', $sort, $sortorder). '">'. headerUrl('rank_position',['sort','sortorder'],'countries') .'Rank</a></th>
         <th class="hlstats-main-column left'. isSorted('name', $sort, $sortorder) .'">'. headerUrl('name',['sort','sortorder'],'countries') .'Country</a></th>
         <th class="'. isSorted('nummembers', $sort, $sortorder) .'">'. headerUrl('nummembers',['sort','sortorder'],'countries') .'Members</a></th>'
         .($g_options['rankingtype'] != 'kills' ? ('<th class="hide'. isSorted('skill', $sort, $sortorder) .'">'. headerUrl('skill',['sort','sortorder'],'countries') .'Points</a></th>'):'').

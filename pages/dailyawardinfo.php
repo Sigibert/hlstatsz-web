@@ -46,10 +46,10 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
     $sortby = $sort;
     $order  = $sortorder;
 
-    $col = array("count","awardTime","lastName");
+    $col = array("rank_position","count","awardTime","lastName");
     if (!in_array($sort, $col)) {
-        $sort      = "count";
-        $sortorder = "DESC";
+        $sort      = "rank_position";
+        $sortorder = "ASC";
     }
 
     if ($sort == "awardTime") {
@@ -61,38 +61,35 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
     $start = isset($_GET['page']) ? ((int)$_GET['page'] - 1) * 30 : 0;
 
 	$result = $db->query("
-		SELECT
-			hlstats_Players_Awards.playerId,
-			awardTime,
-			lastName,
-			flag,
-            country,
-			count
-		FROM
-			hlstats_Players_Awards
-		LEFT JOIN
-			hlstats_Players
-		ON
-			hlstats_Players_Awards.playerId = hlstats_Players.playerId
-		WHERE
-			awardid=$award
+		WITH award_data AS (
+			SELECT
+				hlstats_Players_Awards.playerId,
+				awardTime,
+				lastName,
+				flag,
+				country,
+				count
+			FROM
+				hlstats_Players_Awards
+			LEFT JOIN
+				hlstats_Players
+			ON
+				hlstats_Players_Awards.playerId = hlstats_Players.playerId
+			WHERE
+				awardid=$award
+		),
+		ranked AS (
+			SELECT *,
+				RANK() OVER (ORDER BY count DESC, awardTime DESC) AS rank_position,
+				COUNT(*) OVER() AS total_rows
+			FROM award_data
+		)
+		SELECT * FROM ranked
 		ORDER BY
 			$sort $sortorder,
 			$sort2 $sortorder
 		LIMIT 30 OFFSET $start
 	");
-
-
-	$resultCount = $db->query("
-		SELECT
-			awardTime
-		FROM
-			hlstats_Players_Awards
-		WHERE
-			awardid=$award	
-	");
-
-	$numitems = mysqli_num_rows($resultCount);
 
 if (!is_ajax()) {
 ?>
@@ -127,35 +124,34 @@ if (!is_ajax()) {
 <div  class="responsive-table">
   <table class="players-table">
     <tr>
-        <th class="nowarp left" style="width:1%"><span>#</span></th>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>"><?= headerUrl('rank_position', ['sort','sortorder'], 'dailyawardinfo') ?>Rank</a></th>
         <th class="<?= isSorted('awardTime',$sort,$sortorder) ?>"><?= headerUrl('awardTime', ['sort','sortorder'], 'dailyawardinfo') ?>Day</a></th>
         <th class="hlstats-main-description left<?= isSorted('lastName',$sort,$sortorder) ?>"><?= headerUrl('lastName', ['sort','sortorder'], 'dailyawardinfo') ?>Player</a></th>
         <th class="nowrap<?= isSorted('count',$sort,$sortorder) ?>"><?= headerUrl('count', ['sort','sortorder'], 'dailyawardinfo') ?>Daily Count</a></th>
     </tr>
     <?php
-        $i= 1 + $start;
-
         while ($res = $db->fetch_array($result))
         {
+            $total = $res['total_rows'];
             echo '<tr>
-                  <td class="nowrap right">'.$i.'</td>
+                  <td class="nowrap right">'.$res['rank_position'].'</td>
                   <td class="nowrap"><span class="hlstats-name">'.$res['awardTime'].'</span></a></td>
                   <td class="hlstats-main-description left">
                       <span class="hlstats-flag"><img src="'.getFlag($res['flag']).'" title="'.$res['country'].'" alt="'.$res['flag'].'"></span>
                       <a href="?mode=playerinfo&amp;player='.$res['playerId'].'" title=""></span><span class="hlstats-name">'.htmlspecialchars($res['lastName'] ?? '').'&nbsp;</span></a>
                   </td>
                   <td class="nowrap">'.$res['count'].' times</td>
-                  </tr>'; $i++;
+                  </tr>';
         }
    ?>
    </table>
    </div>
    <?php
-       echo Pagination($numitems ?? 0, $_GET['page'] ?? 1, 30, 'page', true, 'dailyawardinfo');
+       echo Pagination($total ?? 0, $_GET['page'] ?? 1, 30, 'page', true, 'dailyawardinfo');
 
   if (is_ajax()) exit;
   ?>
 </div>
-<div>
+<div class="hlstats-note">
 <a href="<?php echo $g_options['scripturl'] . "?mode=awards&amp;game=$game"; ?>">&larr;&nbsp;Daily Awards</a>
 </div>

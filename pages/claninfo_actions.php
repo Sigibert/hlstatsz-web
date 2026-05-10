@@ -22,14 +22,14 @@ $asterisk = $g_options['DeleteDays'] ? ' *' : '';
     $sort      = $_GET['obj_sort'] ?? '';
     $sort2     = "code";
 
-    $col = array("description","obj_count","obj_bonus");
+    $col = array("rank_position","description","obj_count","obj_bonus");
     if (!in_array($sort, $col)) {
-        $sort      = "obj_count";
-        $sortorder = "DESC";
+        $sort      = "rank_position";
+        $sortorder = "ASC";
     }
 
-    if ($sort == "obj_count") {
-        $sort2 = "code";
+    if ($sort == "rank_position") {
+        $sort2 = "obj_count";
     }
 
     $sortorder = strtoupper($sortorder) === "ASC" ? "ASC" : "DESC";
@@ -74,11 +74,14 @@ $asterisk = $g_options['DeleteDays'] ? ' *' : '';
                 SUM(obj_bonus) AS obj_bonus
             FROM combined
             GROUP BY code
+        ),
+        ranked AS (
+            SELECT *,
+                RANK() OVER (ORDER BY obj_count DESC, code ASC) AS rank_position,
+                COUNT(*) OVER() AS total_rows
+            FROM final
         )
-        SELECT
-            *,
-            COUNT(*) OVER() AS total_rows
-        FROM final
+        SELECT * FROM ranked
         ORDER BY
             $sort $sortorder,
             $sort2 $sortorder
@@ -97,7 +100,8 @@ $asterisk = $g_options['DeleteDays'] ? ' *' : '';
     }
     echo '<div class="responsive-table"><table class="maps-table">
         <tr>
-            <th class="nowrap left" style="width:1%"><span>#</span></th>
+            <th class="hlstats-ranking nowrap'.isSorted('rank_position',$sort,$sortorder).'">'.
+                headerUrl('rank_position', ['obj_sort','obj_sortorder'], 'obj').'Rank</a></th>
             <th class="left'.isSorted('description',$sort,$sortorder).'">'.
                 headerUrl('description',['obj_sort','obj_sortorder'],'obj').'Action</a></th>
             <th class="'.isSorted('obj_count',$sort,$sortorder).'">'.
@@ -106,19 +110,16 @@ $asterisk = $g_options['DeleteDays'] ? ' *' : '';
                 headerUrl('obj_bonus',['obj_sort','obj_sortorder'],'obj').'Points Bonus</a></th>
         </tr>';
 
-    $i = 1 + $start;
     $res = $first;
 
     do {
         echo '<tr>
-            <td class="nowrap right">'.$i.'</td>
+            <td class="nowrap right">'.$res['rank_position'].'</td>
             <td class="hlstats-main-description left"><a href="?mode=actioninfo&action='.$res['code'].'&game='.$game.'">'.
                 htmlspecialchars($res['description']).'</a></td>
             <td class="nowrap right">'.$res['obj_count'].' times</td>
             <td class="nowrap right hide">'.$res['obj_bonus'].'</td>
         </tr>';
-
-        $i++;
 
     } while ($res = $db->fetch_array($result));
 
@@ -136,10 +137,10 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == "ppa") {
     $sort      = $_GET['ppa_sort'] ?? '';
     $sort2     = "code";
 
-    $col = array("description","obj_count","obj_bonus");
+    $col = array("rank_position","description","obj_count","obj_bonus");
     if (!in_array($sort, $col)) {
-        $sort      = "obj_count";
-        $sortorder = "DESC";
+        $sort      = "rank_position";
+        $sortorder = "ASC";
     }
 
     if ($sort == "obj_count") {
@@ -164,11 +165,14 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == "ppa") {
                 ON p.playerId = e.victimId
             WHERE p.clan = $clan
             GROUP BY a.id
+        ),
+        ranked AS (
+            SELECT *,
+                RANK() OVER (ORDER BY obj_count DESC, code ASC) AS rank_position,
+                COUNT(*) OVER() AS total_rows
+            FROM victim_actions
         )
-        SELECT
-            *,
-            COUNT(*) OVER() AS total_rows
-        FROM victim_actions
+        SELECT * FROM ranked
         ORDER BY
             $sort $sortorder,
             $sort2 $sortorder
@@ -185,7 +189,8 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == "ppa") {
     }
     echo '<div class="responsive-table"><table class="maps-table">
         <tr>
-            <th class="nowrap left" style="width:1%"><span>#</span></th>
+            <th class="hlstats-ranking nowrap'.isSorted('rank_position',$sort,$sortorder).'">'.
+                headerUrl('rank_position', ['ppa_sort','ppa_sortorder'], 'ppa').'Rank</a></th>
             <th class="left'.isSorted('description',$sort,$sortorder).'">'.
                 headerUrl('description',['ppa_sort','ppa_sortorder'],'ppa').'Action</a></th>
             <th class="'.isSorted('obj_count',$sort,$sortorder).'">'.
@@ -194,19 +199,16 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == "ppa") {
                 headerUrl('obj_bonus',['ppa_sort','ppa_sortorder'],'ppa').'Points Bonus</a></th>
         </tr>';
 
-    $i = 1 + $start;
     $res = $first;
 
     do {
         echo '<tr>
-            <td class="nowrap right">'.$i.'</td>
+            <td class="nowrap right">'.$res['rank_position'].'</td>
             <td class="hlstats-main-column left"><a href="?mode=actioninfo&action='.$res['code'].'&game='.$game.'#victims">'.
                 htmlspecialchars($res['description']).'</a></td>
             <td class="nowrap right">'.$res['obj_count'].' times</td>
             <td class="nowrap right hide">'.$res['obj_bonus'].'</td>
         </tr>';
-
-        $i++;
 
     } while ($res = $db->fetch_array($result));
 

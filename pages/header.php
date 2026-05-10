@@ -169,9 +169,9 @@ $currentMode = $mode ?? $game ?? '';
             <ul id="gamelist-menu"><?= $gamelist ?></ul>
           </div>
         </div>
-        <a href="?mode=players&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['players'], $mode) ?>">Players</a>
-            <a href="?mode=clans&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['clans'], $mode) ?>">Clans</a>
-        <a href="?mode=awards&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['awards'], $mode) ?>">Awards</a>
+        <a href="?mode=players&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['players','playerinfo','playerhistory','playersessions','playerawards','chathistory'], $mode) ?>">Players</a>
+            <a href="?mode=clans&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['clans','claninfo'], $mode) ?>">Clans</a>
+        <a href="?mode=awards&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['awards','rankinfo','ribboninfo','dailyawardinfo'], $mode) ?>">Awards</a>
 
         <div class="hlstats-dropdown">
           <button class="hlstats-dropbtn"
@@ -185,22 +185,22 @@ $currentMode = $mode ?? $game ?? '';
            <?php if ($g_options['nav_globalchat']==1) { ?>
               <a href="?mode=chat&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['chat'], $mode) ?>">Chat</a>
             <?php } ?>
-            <a href="?mode=actions&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['actions'], $mode) ?>">Actions</a>
-            <a href="?mode=weapons&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['weapons'], $mode) ?>">Weapons</a>
-            <a href="?mode=maps&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['maps'], $mode) ?>">Maps</a>
+            <a href="?mode=actions&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['actions','actioninfo'], $mode) ?>">Actions</a>
+            <a href="?mode=weapons&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['weapons','weaponinfo'], $mode) ?>">Weapons</a>
+            <a href="?mode=maps&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['maps','mapinfo'], $mode) ?>">Maps</a>
             <?php
             $db_game = $db->escape($game);
             $result = $db->query("SELECT game from hlstats_Roles WHERE game='$db_game' AND hidden = '0'");
             $numitems = $db->num_rows($result);
             if ($numitems > 0) {
             ?>
-                <a href="?mode=roles&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['roles'], $mode) ?>">Roles</a>
+                <a href="?mode=roles&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['roles','rolesinfo'], $mode) ?>">Roles</a>
             <?php } ?>
             <?php if ($g_options['nav_cheaters']==1) { ?>
               <a href="?mode=bans&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['bans'], $mode) ?>">Bans</a>
             <?php } ?>
             <?php if ($g_options['countrydata']) { ?>
-              <a href="?mode=countryclans&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['countryclans'], $mode) ?>">Countries</a>
+              <a href="?mode=countryclans&amp;game=<?= $game ?>" class="hlstats-sublink<?= active(['countryclans','countryclansinfo'], $mode) ?>">Countries</a>
             <?php } ?>
 
           </div>

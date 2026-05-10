@@ -193,4 +193,4 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 <?php
  }
 ?>
-<div><a href="?mode=awards&amp;game=<?=$game?>&tab=ranks#ranks">&larr;&nbsp;Ranks</a></div>
+<div class="hlstats-note"><a href="?mode=awards&amp;game=<?=$game?>&tab=ranks#ranks">&larr;&nbsp;Rank Statistics</a></div>

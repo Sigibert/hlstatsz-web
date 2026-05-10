@@ -383,6 +383,9 @@ function setForumText(val) {
     }
 }
 </script>
+<div class="hlstats-note">
+    <a href="?mode=players&amp;game=<?= $game ?>">&larr;&nbsp;Player Ranking</a>
+</div>
 <?php if ($g_options['DeleteDays']) { ?>
         <div class="hlstats-note">
             Items marked "*" above are generated from the most recent <strong><?php echo $g_options['DeleteDays']; ?></strong> days of activity.

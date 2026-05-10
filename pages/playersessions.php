@@ -163,7 +163,7 @@ if ($numitems > 0) {
 }
 ?>
 </div>
-<div>
+<div class="hlstats-note">
     &larr;&nbsp;<a href="<?php echo $g_options['scripturl'] . "?mode=playerinfo&amp;player=$player"; ?>"><?php echo $pl_name; ?>'s Statistics</a>
 </div>
 <?php if ($g_options['DeleteDays']) { ?>

@@ -280,12 +280,12 @@ if (!is_ajax() || $_GET['ajax'] == 'vpage') {
 
 if ($db->num_rows($result)) {
     if (empty($_GET['ajax'])) {
-        printSectionTitle('Action Victim Details *');
+        printSectionTitle('Action Victim Details'.$asterisk);
 
         echo '<div class="hlstats-cards-grid">
         <section class="hlstats-section hlstats-card">
         <div class="hlstats-card-foot">
-            <span class="hlstats-name">Victims of '.$act_name.'</span> (Last '.$g_options['DeleteDays'].' Days)
+            <span class="hlstats-name">Victims of '.$act_name.'</span>
         </div>
         </section>
         </div>
@@ -295,7 +295,7 @@ if ($db->num_rows($result)) {
     echo '<div  class="responsive-table">
         <table class="maps-table">
         <tr>
-            <th class="'.isSorted('rank_position',$sort,$sortorder).'">'.
+            <th class="hlstats-ranking nowrap'.isSorted('rank_position',$sort,$sortorder).'">'.
                 headerUrl('rank_position',['vpage_sort','vpage_sortorder'],'vpage').'Rank</a></th>
             <th class="left'.isSorted('playerName',$sort,$sortorder).'">'.
                 headerUrl('playerName',['vpage_sort','vpage_sortorder'],'vpage').'Player</a></th>
@@ -326,7 +326,7 @@ if ($db->num_rows($result)) {
   }
 }
 ?>
-<div>
+<div class="hlstats-note">
     <a href="?mode=actions&amp;game=<?= $game ?>">&larr;&nbsp;Action Statistics</a>
 </div>
 <?php if ($g_options['DeleteDays']) { ?>

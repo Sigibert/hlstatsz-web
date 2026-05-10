@@ -279,3 +279,6 @@ if (is_ajax()) exit();
 echo '</div>';
 }
 ?>
+<div class="hlstats-note">
+    <a href="?mode=countryclans&amp;game=<?= $game ?>">&larr;&nbsp;Country Statistics</a>
+</div>

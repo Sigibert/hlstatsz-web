@@ -196,6 +196,6 @@ Fetch.ini('playerawards');
 <?php
     } else { echo '<p class="hlstats-no-data"><em>Not enough data</em></p>'; }
     ?>
-<div>
+<div class="hlstats-note">
     <a href="<?php echo $g_options['scripturl'] . "?mode=playerinfo&amp;player=$player"; ?>">&larr;&nbsp;<?php echo $pl_name; ?>'s Statistics</a>
 </div>

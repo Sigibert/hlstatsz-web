@@ -376,7 +376,7 @@ if (!is_ajax()) {
 <script>
 Fetch.ini('events');
 </script>
-<div>
+<div class="hlstats-note">
     <a href="<?php echo $g_options['scripturl'] . "?mode=playerinfo&amp;player=$player"; ?>">&larr;&nbsp;<?php echo $pl_name; ?>'s Statistics</a>
 </div>
 <?php if ($g_options['DeleteDays']) { ?>

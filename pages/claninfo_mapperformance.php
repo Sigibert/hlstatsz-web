@@ -23,10 +23,10 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'maps') {
     $sort      = $_GET['maps_sort'] ?? '';
     $sort2     = "kills";
 
-    $col = array("map","kills","kpercent","deaths","dpercent","kpd","headshots","hpercent","hpk");
+    $col = array("rank_position","map","kills","kpercent","deaths","dpercent","kpd","headshots","hpercent","hpk");
     if (!in_array($sort, $col)) {
-        $sort      = "map";
-        $sortorder = "DESC";
+        $sort      = "rank_position";
+        $sortorder = "ASC";
     }
 
     if ($sort == "kills") {
@@ -70,11 +70,14 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'maps') {
                 ROUND(k.headshots / $realheadshots * 100, 2) AS hpercent
             FROM clan_kills k
             INNER JOIN clan_deaths d ON d.map = k.map
+        ),
+        ranked AS (
+            SELECT *,
+                RANK() OVER (ORDER BY kills DESC, map ASC) AS rank_position,
+                COUNT(*) OVER() AS total_rows
+            FROM combined
         )
-        SELECT
-            *,
-            COUNT(*) OVER() AS total_rows
-        FROM combined
+        SELECT * FROM ranked
         ORDER BY
             $sort $sortorder,
             $sort2 $sortorder
@@ -94,7 +97,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'maps') {
   <div  class="responsive-table">
   <table class="maps-table">
     <tr>
-        <th class="nowarp left" style="width:1%"><span>#</span></th>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>"><?= headerUrl('rank_position', ['maps_sort','maps_sortorder'], 'maps') ?>Rank</a></th>
         <th class="hlstats-main-description left<?= isSorted('map',$sort,$sortorder) ?>"><?= headerUrl('map', ['maps_sort','maps_sortorder'], 'maps') ?>Map</a></th>
         <th class="<?= isSorted('kills',$sort,$sortorder) ?>"><?= headerUrl('kills', ['maps_sort','maps_sortorder'], 'maps') ?>Kills</a></th>
         <th class="hide-2 meter-ratio <?= isSorted('kpercent',$sort,$sortorder) ?>"><?= headerUrl('kpercent', ['maps_sort','maps_sortorder'], 'maps') ?>Ratio</a></th>
@@ -106,13 +109,11 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'maps') {
         <th class="hide-3<?= isSorted('hpk',$sort,$sortorder) ?>"><?= headerUrl('hpk', ['maps_sort','maps_sortorder'], 'maps') ?>HS:K</a></th>
     </tr>
     <?php
-            $i = 1+$start;
-
         while ($res = $db->fetch_array($result))
         {
             $total = $res['total_rows'];
             echo '<tr>
-                  <td class="nowrap right">'.$i.'</td>
+                  <td class="nowrap right">'.$res['rank_position'].'</td>
                   <td class="hlstats-main-description left"><a href="?mode=mapinfo&map='.$res['map'].'&game='.$game.'"><span class="hlstats-name">'.htmlspecialchars($res['map']).'</span></a></td>
                   <td class="nowrap">'.nf($res['kills']).'</td>
                   <td class="nowrap hide-2">
@@ -136,7 +137,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'maps') {
                     </div>
                   </td>
                   <td class="nowrap hide-3">'.$res['hpk'].'</td>
-                  </tr>'; $i++;
+                  </tr>';
         }
    ?>
    </table>

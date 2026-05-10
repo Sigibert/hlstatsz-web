@@ -207,8 +207,8 @@ if ($db->num_rows($result)) {
   ?>
 </div>
 
-<div>
-<a href="<?php echo $g_options['scripturl'] . "?mode=maps&amp;game=$game"; ?>">&larr;&nbsp;Map Statistics</a>
+<div class="hlstats-note">
+    <a href="<?php echo $g_options['scripturl'] . "?mode=maps&amp;game=$game"; ?>">&larr;&nbsp;Map Statistics</a>
 </div>
 <script>
 Fetch.ini('mapinfo');

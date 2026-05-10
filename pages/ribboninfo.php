@@ -147,6 +147,6 @@ printSectionTitle('Ribbon Details');
   ?>
 </div>
 
-<div>
-<a href="?mode=awards&game=<?=$game?>&tab=ribbons#Ribbons">&larr;&nbsp;Ribbons</a>
+<div class="hlstats-note">
+<a href="?mode=awards&game=<?=$game?>&tab=ribbons#Ribbons">&larr;&nbsp;Ribbon Statistics</a>
 </div>

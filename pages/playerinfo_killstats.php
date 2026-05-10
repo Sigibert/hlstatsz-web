@@ -146,7 +146,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'playerkills') {
 <div  class="responsive-table">
   <table class="maps-table">
     <tr>
-        <th class="nowarp right<?= isSorted('rank_position',$sort,$sortorder) ?>" style="width:1%"><?= headerUrl('rank_position', ['playerkills_sort','playerkills_sortorder'], 'playerkills') ?>Rank</a></th>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>" style="width:1%"><?= headerUrl('rank_position', ['playerkills_sort','playerkills_sortorder'], 'playerkills') ?>Rank</a></th>
         <th class="hlstats-main-description left<?= isSorted('name',$sort,$sortorder) ?>"><?= headerUrl('name', ['playerkills_sort','playerkills_sortorder'], 'playerkills') ?>Name</a></th>
         <th class="<?= isSorted('kills',$sort,$sortorder) ?>"><?= headerUrl('kills', ['playerkills_sort','playerkills_sortorder'], 'playerkills') ?>Kills</a></th>
         <th class="hide-2 meter-ratio <?= isSorted('kpercent',$sort,$sortorder) ?>"><?= headerUrl('kpercent', ['playerkills_sort','playerkills_sortorder'], 'playerkills') ?>Ratio</a></th>

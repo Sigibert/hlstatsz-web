@@ -301,7 +301,7 @@ printSectionTitle('Members');
 echo '<div class="responsive-table">
 <table class="players-table">
     <tr>
-        <th class="'. isSorted('rank_position', $sort, $sortorder). '">'. headerUrl('rank_position',['sort','sortorder'],'members') .'Rank</a></th>
+        <th class="hlstats-ranking nowrap'. isSorted('rank_position', $sort, $sortorder). '">'. headerUrl('rank_position',['sort','sortorder'],'members') .'Rank</a></th>
         <th class="hlstats-main-column left'. isSorted('lastName', $sort, $sortorder) .'">'. headerUrl('lastName',['sort','sortorder'],'members') .'Player</a></th>';
         if ($g_options['rankingtype']!='kills') {
             echo '<th class="'. isSorted('skill', $sort, $sortorder) .'">'. headerUrl('skill',['sort','sortorder'],'members') .'Points</a></th>

@@ -189,7 +189,7 @@ if ($db->num_rows($result)) {
 }
   ?>
 </div>
-<div>
+<div class="hlstats-note">
     <a href="?mode=weapons&amp;game=<?= $game ?>">&larr;&nbsp;Weapon Statistics</a>
 </div>
 <?php if ($g_options['DeleteDays']) { ?>

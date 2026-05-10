@@ -30,10 +30,10 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'server') {
     $sortby = $sort;
     $order  = $sortorder;
 
-    $col = array("server","kills","kpercent","kdeaths","kpd","headshots","hpercent","hpk");
+    $col = array("rank_position","server","kills","kpercent","kdeaths","kpd","headshots","hpercent","hpk");
     if (!in_array($sort, $col)) {
-        $sort      = "kills";
-        $sortorder = "DESC";
+        $sort      = "rank_position";
+        $sortorder = "ASC";
     }
 
     if ($sort == "server") {
@@ -41,34 +41,46 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'server') {
     }
 
     $sortorder = strtoupper($sortorder) === "ASC" ? "ASC" : "DESC";
-  
+
+    $start = isset($_GET['server_page']) ? ((int)$_GET['server_page'] - 1) * 30 : 0;
+
 	// leave the join on this one, we do groupings..
 	$result = $db->query("
-		SELECT
-			hlstats_Servers.name AS server,
-			SUM(hlstats_Events_Frags.killerId = $player) AS kills,
-			SUM(hlstats_Events_Frags.victimId = $player) AS deaths,
-			SUM(hlstats_Events_Frags.killerId = $player) / IF(SUM(hlstats_Events_Frags.victimId = $player) = 0, 1, SUM(hlstats_Events_Frags.victimId = $player)) AS kpd,
-			ROUND(SUM(hlstats_Events_Frags.killerId = $player) / $realkills * 100, 2) AS kpercent,
-			ROUND(SUM(hlstats_Events_Frags.victimId = $player) / $realdeaths * 100, 2) AS dpercent,
-			SUM(hlstats_Events_Frags.killerId = $player AND hlstats_Events_Frags.headshot = 1) AS headshots,
-			IFNULL(SUM(hlstats_Events_Frags.killerId = $player AND hlstats_Events_Frags.headshot = 1) / SUM(hlstats_Events_Frags.killerId = $player), '-') AS hpk,
-			ROUND(SUM(hlstats_Events_Frags.killerId = $player AND hlstats_Events_Frags.headshot = 1) / $realheadshots * 100, 2) AS hpercent
-		FROM
-			hlstats_Events_Frags
-		LEFT JOIN
-			hlstats_Servers
-		ON
-			hlstats_Servers.serverId = hlstats_Events_Frags.serverId
-		WHERE
-			hlstats_Servers.game = '$game'
-			AND hlstats_Events_Frags.killerId = '$player'
-			OR hlstats_Events_Frags.victimId = '$player'
-		GROUP BY
-			hlstats_Servers.name
+		WITH server_data AS (
+			SELECT
+				hlstats_Servers.name AS server,
+				SUM(hlstats_Events_Frags.killerId = $player) AS kills,
+				SUM(hlstats_Events_Frags.victimId = $player) AS deaths,
+				SUM(hlstats_Events_Frags.killerId = $player) / IF(SUM(hlstats_Events_Frags.victimId = $player) = 0, 1, SUM(hlstats_Events_Frags.victimId = $player)) AS kpd,
+				ROUND(SUM(hlstats_Events_Frags.killerId = $player) / $realkills * 100, 2) AS kpercent,
+				ROUND(SUM(hlstats_Events_Frags.victimId = $player) / $realdeaths * 100, 2) AS dpercent,
+				SUM(hlstats_Events_Frags.killerId = $player AND hlstats_Events_Frags.headshot = 1) AS headshots,
+				IFNULL(SUM(hlstats_Events_Frags.killerId = $player AND hlstats_Events_Frags.headshot = 1) / SUM(hlstats_Events_Frags.killerId = $player), '-') AS hpk,
+				ROUND(SUM(hlstats_Events_Frags.killerId = $player AND hlstats_Events_Frags.headshot = 1) / $realheadshots * 100, 2) AS hpercent
+			FROM
+				hlstats_Events_Frags
+			LEFT JOIN
+				hlstats_Servers
+			ON
+				hlstats_Servers.serverId = hlstats_Events_Frags.serverId
+			WHERE
+				hlstats_Servers.game = '$game'
+				AND (hlstats_Events_Frags.killerId = '$player'
+				OR hlstats_Events_Frags.victimId = '$player')
+			GROUP BY
+				hlstats_Servers.name
+		),
+		ranked AS (
+			SELECT *,
+				RANK() OVER (ORDER BY kills DESC, server ASC) AS rank_position,
+				COUNT(*) OVER() AS total_rows
+			FROM server_data
+		)
+		SELECT * FROM ranked
 		ORDER BY
 			$sort $sortorder,
 			$sort2 $sortorder
+		LIMIT 30 OFFSET $start;
 	");
 
 	if ($db->num_rows($result))
@@ -84,7 +96,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'server') {
 <div class="responsive-table">
   <table class="server-table">
     <tr>
-        <th class="nowarp left" style="width:1%"><span>#</span></th>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>"><?= headerUrl('rank_position', ['server_sort','server_sortorder'], 'server') ?>Rank</a></th>
         <th class="hlstats-main-description left<?= isSorted('server',$sort,$sortorder) ?>"><?= headerUrl('server', ['server_sort','server_sortorder'], 'server') ?>Server</a></th>
         <th class="<?= isSorted('kills',$sort,$sortorder) ?>"><?= headerUrl('kills', ['server_sort','server_sortorder'], 'server') ?>Kills</a></th>
         <th class="hide-2 meter-ratio<?= isSorted('kpercent',$sort,$sortorder) ?>"><?= headerUrl('kpercent', ['server_sort','server_sortorder'], 'server') ?>Ratio</a></th>
@@ -95,12 +107,11 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'server') {
        <th class="hide-3<?= isSorted('hpk',$sort,$sortorder) ?>"><?= headerUrl('hpk', ['server_sort','server_sortorder'], 'server') ?>HS:K</a></th>
     </tr>
     <?php
-        $i= 1 + $start;
         while ($res = $db->fetch_array($result))
         {
             $total = $res['total_rows'];
             echo '<tr>
-                  <td class="nowrap right">'.$i.'</td>
+                  <td class="nowrap right">'.$res['rank_position'].'</td>
                   <td class="hlstats-main-description left"><a href="?game='.$game.'"><span class="hlstats-name">'.htmlspecialchars($res['server']).'</span></a></td>
                   <td class="nowrap">'.nf($res['kills']).' times</td>
                   <td class="nowrap hide-2">
@@ -119,12 +130,13 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'server') {
                     </div>
                   </td>
                   <td class="nowrap hide-3">'.nf($res['hpk'],2,'.','').'</td>
-                  </tr>'; $i++;
+                  </tr>';
         }
    ?>
    </table>
    </div>
    <?php
+       echo Pagination($total, $_GET['server_page'] ?? 1, 30, 'server_page', true, 'server');
 
   if (!empty($_GET['ajax'])) exit;
   ?>

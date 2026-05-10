@@ -41,10 +41,10 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'weapons') {
     $sort      = $_GET['weap_sort'] ?? '';
     $sort2     = "kills";
 
-    $col = array("weapon","modifier","kills","headshots","kpercent","hpercent","hpk");
+    $col = array("rank_position","weapon","modifier","kills","headshots","kpercent","hpercent","hpk");
     if (!in_array($sort, $col)) {
-        $sort      = "kills";
-        $sortorder = "DESC";
+        $sort      = "rank_position";
+        $sortorder = "ASC";
     }
 
     if ($sort == "kills") {
@@ -76,11 +76,14 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'weapons') {
                 AND w.game = '$game'
             GROUP BY
                 f.weapon, w.modifier
+        ),
+        ranked AS (
+            SELECT *,
+                RANK() OVER (ORDER BY kills DESC, headshots DESC) AS rank_position,
+                COUNT(*) OVER() AS total_rows
+            FROM frag_data
         )
-        SELECT
-            *,
-            COUNT(*) OVER() AS total_rows
-        FROM frag_data
+        SELECT * FROM ranked
         ORDER BY
             $sort $sortorder,
             $sort2 $sortorder
@@ -99,7 +102,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'weapons') {
 <div  class="responsive-table">
   <table class="weapons-table">
     <tr>
-        <th class="nowarp left" style="width:1%"><span>#</span></th>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>"><?= headerUrl('rank_position', ['weap_sort','weap_sortorder'], 'weapons') ?>Rank</a></th>
         <th class="hlstats-main-column left<?= isSorted('weapon',$sort,$sortorder) ?>"><?= headerUrl('weapon', ['weap_sort','weap_sortorder'], 'weapons') ?>Weapons</a></th>
         <th class="hide-2<?= isSorted('modifier',$sort,$sortorder) ?>"><?= headerUrl('modifier', ['weap_sort','weap_sortorder'], 'weapons') ?>Modifier</a></th>
         <th class="<?= isSorted('kills',$sort,$sortorder) ?>"><?= headerUrl('kills', ['weap_sort','weap_sortorder'], 'weapons') ?>Kills</a></th>
@@ -109,7 +112,6 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'weapons') {
         <th class="hide-3<?= isSorted('hpk',$sort,$sortorder) ?>"><?= headerUrl('hpk', ['weap_sort','weap_sortorder'], 'weapons') ?>HS:K</a></th>
     </tr>
     <?php
-        $i = 1+$start;
         while ($res = $db->fetch_array($result))
         {
             $total = $res['total_rows'];
@@ -123,7 +125,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'weapons') {
                 $weapimg = '<span class="hlstats-name">' . ((!empty($fname[$weapon])) ? $fname[$weapon] : ucwords(preg_replace('/_/', ' ', $weapon))) . '</span>';
             }
             echo '<tr>
-                  <td class="nowrap right">'.$i.'</td>
+                  <td class="nowrap right">'.$res['rank_position'].'</td>
                   <td class="hlstats-main-description left"><a href="?mode=weaponinfo&weapon='.$res['weapon'].'&game='.$game.'"><span class="hlstats-image">'.$weapimg.'</span></a></td>
                   <td class="nowrap hide-2">'.$res['modifier'].' times</td>
                   <td class="nowrap">'.nf($res['kills']).'</td>
@@ -141,7 +143,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'weapons') {
                     </div>
                   </td>
                   <td class="nowrap hide-3">'.$res['hpk'].'</td>
-                  </tr>'; $i++;
+                  </tr>';
         }
    ?>
    </table>
@@ -166,10 +168,10 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme') {
     $sort      = $_GET['sm_sort'] ?? '';
     $sort2     = "smweapon";
 
-    $col = array("smweapon","smkills","smhits","smshots","smheadshots","smdeaths","smdamage","smdhr","smkdr","smaccuracy","smspk");
+    $col = array("rank_position","smweapon","smkills","smhits","smshots","smheadshots","smdeaths","smdamage","smdhr","smkdr","smaccuracy","smspk");
     if (!in_array($sort, $col)) {
-        $sort      = "smkills";
-        $sortorder = "DESC";
+        $sort      = "rank_position";
+        $sortorder = "ASC";
     }
     if ($sort == "smweapon") {
         $sort2 = "smkills";
@@ -201,12 +203,15 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme') {
         WHERE p.clan = $clan
         GROUP BY s.weapon
         HAVING SUM(s.shots) > 0
+    ),
+    ranked AS (
+        SELECT *,
+            RANK() OVER (ORDER BY smkills DESC, smweapon ASC) AS rank_position,
+            COUNT(*) OVER() AS total_rows
+        FROM sm_data
     )
-    SELECT
-        *,
-        COUNT(*) OVER() AS total_rows
-    FROM sm_data
-		ORDER BY
+    SELECT * FROM ranked
+    ORDER BY
         $sort $sortorder,
         $sort2 $sortorder
     LIMIT 10 OFFSET $start;
@@ -224,7 +229,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme') {
   <div class="responsive-table">
   <table class="statsme-table">
     <tr>
-        <th class="nowarp left" style="width:1%"><span>#</span></th>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>"><?= headerUrl('rank_position', ['sm_sort','sm_sortorder'], 'statsme') ?>Rank</a></th>
         <th class="hlstats-main-description left<?= isSorted('smweapon',$sort,$sortorder) ?>"><?= headerUrl('smweapon', ['sm_sort','sm_sortorder'], 'statsme') ?>Weapon</a></th>
         <th class="<?= isSorted('smshots',$sort,$sortorder) ?>"><?= headerUrl('smshots', ['sm_sort','sm_sortorder'], 'statsme') ?>Shots</a></th>
         <th class="<?= isSorted('smhits',$sort,$sortorder) ?>"><?= headerUrl('smhits', ['sm_sort','sm_sortorder'], 'statsme') ?>Hits</a></th>
@@ -237,9 +242,8 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme') {
         <th class="<?= isSorted('smspk',$sort,$sortorder) ?>"><?= headerUrl('smspk', ['sm_sort','sm_sortorder'], 'statsme') ?>Shots:Kills</a></th>
     </tr>
     <?php
-        $i = 1+$start;
         while ($res = $db->fetch_array($result))
-{
+        {
             $total = $res['total_rows'];
             $weapon = strtolower($res['smweapon']);
             $image = getImage("/games/$realgame/weapons/" . $weapon);
@@ -251,7 +255,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme') {
                 $weapimg = '<span class="hlstats-name">' . ((!empty($fname[$weapon])) ? $fname[$weapon] : ucwords(preg_replace('/_/', ' ', $weapon))) . '</span>';
             }
             echo '<tr>
-                  <td class="nowrap right">'.$i.'</td>
+                  <td class="nowrap right">'.$res['rank_position'].'</td>
                   <td class="hlstats-main-description left"><a href="?mode=weaponinfo&weapon='.$weapon.'&game='.$game.'"><span class="hlstats-image">'.$weapimg.'</span></a></td>
                   <td class="nowrap">'.nf($res['smshots']).' times</td>
                   <td class="nowrap">'.nf($res['smhits']).'</td>
@@ -262,7 +266,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme') {
                   <td class="nowrap">'.$res['smaccuracy'].'</td>
                   <td class="nowrap">'.$res['smdhr'].'</td>
                   <td class="nowrap">'.$res['smspk'].'</td>
-                  </tr>'; $i++;
+                  </tr>';
         }
    ?>
    </table>
@@ -284,10 +288,10 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme2') {
     $sortorder = $_GET['sm2_sortorder'] ?? '';
     $sort      = $_GET['sm2_sort'] ?? '';
     $sort2     = "smweapon";
-    $col = array("smweapon","smhits","smleft","smmiddle","smright");
+    $col = array("rank_position","smweapon","smhits","smleft","smmiddle","smright");
     if (!in_array($sort, $col)) {
-        $sort      = "smhits";
-        $sortorder = "DESC";
+        $sort      = "rank_position";
+        $sortorder = "ASC";
     }
 
     if ($sort == "smweapon") {
@@ -358,12 +362,15 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme2') {
             WHERE p.clan = $clan
             GROUP BY s.weapon
             HAVING smhits > 0
+        ),
+        ranked AS (
+            SELECT *,
+                RANK() OVER (ORDER BY smhits DESC, smweapon ASC) AS rank_position,
+                COUNT(*) OVER() AS total_rows
+            FROM sm2
         )
-        SELECT
-            *,
-            COUNT(*) OVER() AS total_rows
-        FROM sm2
-		ORDER BY
+        SELECT * FROM ranked
+        ORDER BY
             $sort $sortorder,
             $sort2 $sortorder
         LIMIT 10 OFFSET $start;
@@ -384,7 +391,7 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme2') {
   <div class="responsive-table">
   <table class="statsme2-table">
     <tr>
-        <th class="nowarp left" style="width:1%"><span>#</span></th>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>"><?= headerUrl('rank_position', ['sm2_sort','sm2_sortorder'], 'statsme2') ?>Rank</a></th>
         <th class="hlstats-main-description left<?= isSorted('smweapon',$sort,$sortorder) ?>"><?= headerUrl('smweapon', ['sm2_sort','sm2_sortorder'], 'statsme2') ?>Weapon</a></th>
         <th class="<?= isSorted('smhits',$sort,$sortorder) ?>"><?= headerUrl('smhits', ['sm2_sort','sm2_sortorder'], 'statsme2') ?>Hits</a></th>
         <th class="<?= isSorted('smleft',$sort,$sortorder) ?>"><?= headerUrl('smleft', ['sm2_sort','sm2_sortorder'], 'statsme2') ?>Left</a></th>
@@ -392,10 +399,8 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme2') {
         <th class="<?= isSorted('smright',$sort,$sortorder) ?>"><?= headerUrl('smright', ['sm2_sort','sm2_sortorder'], 'statsme2') ?>Right</a></th>
     </tr>
     <?php
-        $i = 1+$start;
-
         while ($res = $db->fetch_array($result))
-	    {
+        {
             $total = $res['total_rows'];
             $weapon = strtolower($res['smweapon']);
             $image = getImage("/games/$realgame/weapons/" . $weapon);
@@ -407,13 +412,13 @@ if (empty($_GET['ajax']) || $_GET['ajax'] == 'statsme2') {
                 $weapimg = '<span class="hlstats-name">' . ((!empty($fname[$weapon])) ? $fname[$weapon] : ucwords(preg_replace('/_/', ' ', $weapon))) . '</span>';
             }
             echo '<tr>
-                  <td class="nowrap right">'.$i.'</td>
+                  <td class="nowrap right">'.$res['rank_position'].'</td>
                   <td class="hlstats-main-description left"><a href="javascript:switch_weapon(\''.$res['smweapon'].'\');" onclick="switch_weapon(\''.$res['smweapon'].'\');return false;"><span class="hlstats-image">'.$weapimg.'</span></a></td>
                   <td class="nowrap">'.$res['smhits'].' times</td>
                   <td class="nowrap">'.$res['smleft'].'</td>
                   <td class="nowrap">'.$res['smmiddle'].'</td>
                   <td class="nowrap">'.$res['smright'].'</td>
-                  </tr>'; $i++;
+                  </tr>';
         }
    ?>
    </table>

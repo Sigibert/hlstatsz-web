@@ -217,10 +217,42 @@ if ((!$realgame || !$realname) && $game)
 	$_SESSION['realname'] = $realname;
 }
 
-
+if ($mode == 'contents') {
+    $resultGames = $db->query("
+        SELECT
+            code,
+            name,
+            realgame
+        FROM
+            hlstats_Games
+        WHERE
+            hidden='0'
+        ORDER BY
+            realgame, name ASC
+    ");
+    $resultVoices = $db->query("
+        SELECT
+            serverId,
+            name,
+            addr,
+            password,
+            descr,
+            queryPort,
+            UDPPort,
+            serverType
+        FROM
+            hlstats_Servers_VoiceComm
+        ");
+    $num_games = $db->num_rows($resultGames);
+    $num_voices = $db->num_rows($resultVoices);
+    if ($num_games == 1 && !$num_voices && !$game) {
+        list($game) = $db->fetch_row($resultGames);
+    }
+}
 
 if (!is_ajax() && $mode !== 'admin')
 	include (PAGE_PATH . '/header.php');
+
 
 if ( file_exists(PAGE_PATH . "/$mode.php") ) {
 	include(PAGE_PATH . "/$mode.php");

@@ -150,7 +150,7 @@ $currentMode = $mode ?? $game ?? '';
         }
     }
 
-    if (!empty($_GET) && !empty($game) && $mode != 'admin' && $mode != 'help') { 
+    if (!empty($game) && $mode != 'admin' && $mode != 'help') { 
 
       $gameName=!empty($_SESSION['realname']) ? htmlspecialchars($_SESSION['realname']) : 'Servers';
 ?>

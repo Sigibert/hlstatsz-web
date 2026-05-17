@@ -25,42 +25,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
         exit;
     }
 
-    // Contents
-    $resultGames = $db->query("
-        SELECT
-            code,
-            name,
-            realgame
-        FROM
-            hlstats_Games
-        WHERE
-            hidden='0'
-        ORDER BY
-            realgame, name ASC
-    ");
-    $resultVoices = $db->query("
-        SELECT
-            serverId,
-            name,
-            addr,
-            password,
-            descr,
-            queryPort,
-            UDPPort,
-            serverType
-        FROM
-            hlstats_Servers_VoiceComm
-        ");
-    $num_games = $db->num_rows($resultGames);
-    $num_voices = $db->num_rows($resultVoices);
-
-    $game = (!empty($_GET['game'])) ? valid_request($_GET['game'], false) : null;
-
-    if (($num_games == 1 && !$num_voices) || !empty($game)) {
-
-        if ($num_games == 1) {
-            list($game) = $db->fetch_row($resultGames);
-        }
+    if (($num_games == 1 && $num_voices == 0) || isset($_GET['game'])) {
         include(PAGE_PATH . '/game.php');
 
     } else {

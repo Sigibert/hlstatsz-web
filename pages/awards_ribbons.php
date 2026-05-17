@@ -45,11 +45,23 @@ if (!$db->num_rows()) return;
 
 <?php printSectionTitle('Ribbons'); ?>
 <div class="hlstats-cards-grid">
-  <section class="hlstats-section hlstats-card">
-    <div class="hlstats-center">
 <?php
+    $c   = 0;
+    $cnt = -1;
     while ($r = $db->fetch_array())
     {
+        if ($cnt != $r['awardCount'])
+        {
+            $c++;
+            if ($cnt != -1) {
+                echo '</div>';
+                echo '</section>';
+            }
+            $cnt = $r['awardCount'];
+            echo '<section class="hlstats-section hlstats-card hlstats-card-foot">';
+            echo "<div class=\"hlstats-card-title\">Ribbon Class #$c ($cnt awards required)</div>";
+            echo '<div class="hlstats-center">';
+        }
         if (file_exists(IMAGE_PATH."/games/$game/ribbons/".$r['image']))
         {
             $image = IMAGE_PATH."/games/$game/ribbons/".$r['image'];

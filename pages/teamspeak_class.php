@@ -83,11 +83,8 @@ class TeamSpeak3Query
             throw new Exception('Not a Teamspeak 3 ServerQuery port');
         }
 
-        while (($line = fgets($this->socket)) !== false) {
-            if (trim($line) === '') break;
-            $meta = stream_get_meta_data($this->socket);
-            if ($meta['timed_out']) break;
-        }
+        // TS3 always sends exactly one welcome line after the banner; read and discard it.
+        fgets($this->socket);
     }
 
     private function disconnect()

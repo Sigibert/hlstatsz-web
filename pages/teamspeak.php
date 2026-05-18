@@ -119,7 +119,7 @@ function ts3_render_tree($parentId, $channels, $clients)
     return $out;
 }
 
-$ts  = new TeamSpeak3Query($uip, $qPort, $vPort, 2);
+$ts  = new TeamSpeak3Query($uip, $qPort, $vPort, 5);
 $ts3 = $ts->query();
 
 if ($ts3['error']) {

@@ -14,6 +14,7 @@ For current support and updates:
    https://forums.alliedmods.net/forumdisplay.php?f=156
 */
 if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
+include (PAGE_PATH . '/voicecomm_serverlist.php');
 
 	$dcId = valid_request($_GET['dcId'] ?? '', true);
 

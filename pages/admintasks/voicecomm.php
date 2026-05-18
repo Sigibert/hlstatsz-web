@@ -23,10 +23,10 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 	$edlist->columns[] = new EditListColumn('name', 'Server Name', 45, true, 'text', '', 64);
 	$edlist->columns[] = new EditListColumn('addr', 'Address / Guild ID', 20, true, 'text', '', 64);
 	$edlist->columns[] = new EditListColumn('password', 'Password', 20, false, 'text', '', 64);
-	$edlist->columns[] = new EditListColumn('UDPPort', 'UDP Port (TS only)', 6, false, 'numeric', '8767', 64);
-	$edlist->columns[] = new EditListColumn('queryPort', 'Query/Connect Port', 6, false, 'numeric', '51234', 64);
+	$edlist->columns[] = new EditListColumn('UDPPort', 'Voice Port (TS3 only)', 6, false, 'numeric', '9987', 64);
+	$edlist->columns[] = new EditListColumn('queryPort', 'Query Port (TS3 only)', 6, false, 'numeric', '10011', 64);
 	$edlist->columns[] = new EditListColumn('descr', 'Notes', 40, false, 'text', '', 64);
-	$edlist->columns[] = new EditListColumn('serverType', 'Server Type', 20, true, 'select', '0/Teamspeak;1/Ventrilo;2/Discord');
+	$edlist->columns[] = new EditListColumn('serverType', 'Server Type', 20, true, 'select', '0/Teamspeak 3;2/Discord');
 	echo '<div class="panel">';
 	message('warning','Important: The Discord server must have Server Widget enabled (Server Settings > Engagement > Enable Server Widget) for the channel/member data to load');
 	if ($_POST) {
@@ -36,7 +36,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 			message('warning', $edlist->error());
 	}
 	echo '</div>';
-	
+
 	$result = $db->query("
 		SELECT
 			serverId,
@@ -53,7 +53,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 			serverType,
 			name
 	");
-	
+
 	$edlist->draw($result);
 ?>
 
@@ -92,8 +92,8 @@ function checkMod() {
 		} else if (type === '2' && !/^\d+$/.test(addr.value.trim())) {
 			errors.push(label + ': Discord Guild ID must be numeric');
 		}
-		if ((type === '0' || type === '1') && (!queryPort || !queryPort.value.trim())) {
-			errors.push(label + ': Query/Connect Port is required for Teamspeak/Ventrilo');
+		if (type === '0' && (!queryPort || !queryPort.value.trim())) {
+			errors.push(label + ': Query Port is required for Teamspeak 3');
 		}
 	}
 	if (errors.length > 0) {
@@ -112,17 +112,10 @@ function toggleVoiceCommFields(selectEl) {
 		var name = inputs[i].name;
 		if (!name) continue;
 		var field = name.replace(prefix + '_', '');
-		if (field === 'password' || field === 'UDPPort' || field === 'queryPort') {
-			if (type === '2') {
-				inputs[i].disabled = true;
-				inputs[i].style.opacity = '0.3';
-			} else if (type === '1' && field === 'UDPPort') {
-				inputs[i].disabled = true;
-				inputs[i].style.opacity = '0.3';
-			} else {
-				inputs[i].disabled = false;
-				inputs[i].style.opacity = '1';
-			}
+		if (field === 'UDPPort' || field === 'queryPort') {
+			var disable = (type !== '0');
+			inputs[i].disabled = disable;
+			inputs[i].style.opacity = disable ? '0.3' : '1';
 		}
 	}
 }
@@ -136,4 +129,3 @@ function toggleVoiceCommFields(selectEl) {
 	}
 })();
 </script>
-

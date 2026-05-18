@@ -17,7 +17,8 @@ define('IN_HLSTATS', true);
 require('config.php');
 
 if (defined('DEBUG') && DEBUG === true) {
-    ini_set('log_errors', 'On');
+    ini_set('display_errors', '1');
+    ini_set('log_errors', '1');
     error_reporting(-1);
     ini_set('error_log', '_error.txt');
 } else {
@@ -151,7 +152,6 @@ $valid_modes = array(
 	'countryclans',
 	'countryclansinfo',
 	'teamspeak',
-	'ventrilo',
 	'discord'
 );
 
@@ -217,7 +217,7 @@ if ((!$realgame || !$realname) && $game)
 	$_SESSION['realname'] = $realname;
 }
 
-if ($mode == 'contents') {
+if ($mode == 'contents' || $mode == 'teamspeak' || $mode == 'discord') {
     $resultGames = $db->query("
         SELECT
             code,
@@ -235,7 +235,6 @@ if ($mode == 'contents') {
             serverId,
             name,
             addr,
-            password,
             descr,
             queryPort,
             UDPPort,

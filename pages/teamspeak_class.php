@@ -94,7 +94,6 @@ class TeamSpeak3Query
         if ($banner !== 'TS3') {
             throw new Exception('Not a Teamspeak 3 ServerQuery port');
         }
-        // Welcome line stays in the buffer; the first command's fread() loop absorbs it.
     }
 
     private function disconnect()
@@ -106,8 +105,6 @@ class TeamSpeak3Query
         }
     }
 
-    // fread() returns any available bytes immediately without waiting for a newline,
-    // which avoids the per-line blocking that fgets() can cause on some PHP/OS combos.
     private function command($cmd)
     {
         if (!$this->socket) {

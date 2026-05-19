@@ -3,12 +3,12 @@ HLstatsZ continues the long lineage of open-source server stats tools for Half-L
 **HLstats → HLstatsX → HLstatsX:CE → HLstatsZ**
 
 - Official version Z
-- **Modern yet familiar** — clean responsive layout that respects the original HLstatsX look and feel
+- **Modern yet familiar** — clean responsive layout that respects the original HLstats look and feel
 - 3 Beautiful Main Themes (Steam blue, Dark and Light)
 - Responsive Design highly customizable with .css, .js and .php files
 - True Rank
 - OpenStreetMap
-- Discord voice channel
+- Discord/TeamSpeak 3 voice servers
 - Secure Steam Login
 - Better Admin settings
 - Min PHP 8+

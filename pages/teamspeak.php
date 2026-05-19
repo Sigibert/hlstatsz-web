@@ -16,6 +16,19 @@ For current support and updates:
 if (!defined('IN_HLSTATS')) { die('Do not access this file directly'); }
 
 require_once(PAGE_PATH . '/teamspeak_class.php');
+
+$tsNickname = 'WebGuest';
+if (!empty($_SESSION['ID64'])) {
+    $steamId2 = preg_replace('/^STEAM_\d+?:/i', '', ToSteam2($_SESSION['ID64']));
+    $db->query("SELECT p.lastName FROM hlstats_Players p
+                INNER JOIN hlstats_PlayerUniqueIds u ON p.playerId = u.playerId
+                WHERE u.uniqueId = '" . $db->escape($steamId2) . "'
+                LIMIT 1");
+    if (($row = $db->fetch_row()) && !empty($row[0])) {
+        $tsNickname = $row[0];
+    }
+}
+
 include (PAGE_PATH . '/voicecomm_serverlist.php');
 
 $tsId = valid_request($_GET['tsId'] ?? '', true);
@@ -24,7 +37,7 @@ if ($tsId <= 0) {
     return;
 }
 
-$db->query("SELECT addr, queryPort, UDPPort FROM hlstats_Servers_VoiceComm WHERE serverId=" . intval($tsId));
+$db->query("SELECT addr, queryPort, UDPPort, password FROM hlstats_Servers_VoiceComm WHERE serverId=" . intval($tsId));
 $s = $db->fetch_array();
 if (!$s) {
     error('Teamspeak 3 server not found', 1);
@@ -37,7 +50,7 @@ $vPort = (int) $s['UDPPort'];
 
 function show($tpl, $array)
 {
-    $path = PAGE_PATH . "/templates/teamspeak3/{$tpl}.html";
+    $path = PAGE_PATH . "/templates/teamspeak/{$tpl}.html";
     if (!is_readable($path)) return '';
     $out = file_get_contents($path);
     foreach ($array as $k => $v) {
@@ -120,7 +133,7 @@ function ts3_render_tree($parentId, $channels, $clients)
 }
 
 $ts  = new TeamSpeak3Query($uip, $qPort, $vPort, 5);
-$ts3 = $ts->query();
+$ts3 = $ts->query(30);
 
 if ($ts3['error']) {
     error('Could not query Teamspeak 3 server: ' . htmlspecialchars($ts3['error']), 1);
@@ -130,11 +143,10 @@ if ($ts3['error']) {
 $info     = $ts3['serverinfo'];
 $channels = $ts3['channels'];
 
-// Drop ServerQuery clients and HLstatsZ-Viewer from the user list.
+// Drop ServerQuery clients (client_type=1) from the user list.
 $clients = [];
 foreach ($ts3['clients'] as $c) {
     if ((int) ($c['client_type'] ?? 0) !== 0) continue;
-    if (($c['client_nickname'] ?? '') === 'HLstatsZ-Viewer') continue;
     $clients[] = $c;
 }
 usort($clients, function ($a, $b) {
@@ -178,7 +190,7 @@ $serverPort = $info['virtualserver_port'] ?? $vPort;
 $infoHtml  = '';
 $infoHtml .= '<tr><td class="left"><strong>Server name:</strong></td><td class="left">' . htmlspecialchars($info['virtualserver_name'] ?? '') . '</td></tr>';
 $infoHtml .= '<tr><td class="left"><strong>Address:</strong></td><td class="left">'
-           . '<a href="ts3server://' . htmlspecialchars($uip) . '?port=' . (int) $serverPort . '&amp;nickname=WebGuest">'
+           . '<a href="ts3server://' . htmlspecialchars($uip) . '?port=' . (int) $serverPort . (!empty($s['password']) ? '&amp;password=' . urlencode($s['password']) : '') . '&amp;nickname=' . urlencode($tsNickname) . '">'
            . htmlspecialchars($uip . ':' . $serverPort) . '</a></td></tr>';
 $infoHtml .= '<tr><td class="left"><strong>Version:</strong></td><td class="left">' . htmlspecialchars($info['virtualserver_version'] ?? '') . '</td></tr>';
 $infoHtml .= '<tr><td class="left"><strong>Platform:</strong></td><td class="left">' . htmlspecialchars($info['virtualserver_platform'] ?? '') . '</td></tr>';

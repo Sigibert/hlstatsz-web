@@ -25,7 +25,7 @@ class TeamSpeak3Query
 
     public $error = null;
 
-    public function __construct($host, $queryPort = 10011, $voicePort = 9987, $timeout = 2)
+    public function __construct($host, $queryPort = 10011, $voicePort = 9987, $timeout = 5)
     {
         $this->host      = $host;
         $this->queryPort = (int) $queryPort;
@@ -33,8 +33,17 @@ class TeamSpeak3Query
         $this->timeout   = (int) $timeout;
     }
 
-    public function query()
+    public function query($cacheTTL = 0)
     {
+        if ($cacheTTL > 0) {
+            $cacheKey  = md5($this->host . ':' . $this->queryPort . ':' . $this->voicePort);
+            $cacheFile = sys_get_temp_dir() . '/hlstatsz_ts3_' . $cacheKey . '.json';
+            if (is_file($cacheFile) && (time() - filemtime($cacheFile)) < $cacheTTL) {
+                $data = json_decode(file_get_contents($cacheFile), true);
+                if (is_array($data)) return $data;
+            }
+        }
+
         $result = [
             'serverinfo' => [],
             'channels'   => [],
@@ -46,9 +55,6 @@ class TeamSpeak3Query
             $this->connect();
             $this->command('use port=' . $this->voicePort);
 
-            try { $this->command('clientupdate client_nickname=HLstatsZ-Viewer'); }
-            catch (Exception $e) { /* ignore */ }
-
             $serverinfo = $this->command('serverinfo');
             $parsed = $this->parseLine($serverinfo);
             $result['serverinfo'] = $parsed[0] ?? [];
@@ -56,8 +62,8 @@ class TeamSpeak3Query
             $result['channels'] = $this->parseLine(
                 $this->command('channellist -topic -flags -voice -limits')
             );
-            $result['clients']  = $this->parseLine(
-                $this->command('clientlist -uid -away -voice -groups -times')
+            $result['clients'] = $this->parseLine(
+                $this->command('clientlist -away -voice -times')
             );
         } catch (Exception $e) {
             $result['error'] = $e->getMessage();
@@ -65,6 +71,11 @@ class TeamSpeak3Query
         }
 
         $this->disconnect();
+
+        if ($cacheTTL > 0 && $result['error'] === null) {
+            @file_put_contents($cacheFile, json_encode($result), LOCK_EX);
+        }
+
         return $result;
     }
 
@@ -78,13 +89,11 @@ class TeamSpeak3Query
         }
         @stream_set_timeout($this->socket, $this->timeout);
 
-        $banner = trim((string) fgets($this->socket));
+        $banner = trim(fgets($this->socket, 64));
         if ($banner !== 'TS3') {
             throw new Exception('Not a Teamspeak 3 ServerQuery port');
         }
-
-        // TS3 always sends exactly one welcome line after the banner; read and discard it.
-        fgets($this->socket);
+        // Welcome line stays in the buffer; the first command's fread() loop absorbs it.
     }
 
     private function disconnect()
@@ -96,26 +105,27 @@ class TeamSpeak3Query
         }
     }
 
+    // fread() returns any available bytes immediately without waiting for a newline,
+    // which avoids the per-line blocking that fgets() can cause on some PHP/OS combos.
     private function command($cmd)
     {
         if (!$this->socket) {
             throw new Exception('Not connected');
         }
-        fputs($this->socket, $cmd . "\n");
+        fputs($this->socket, "$cmd\n");
 
         $response = '';
-        while (!feof($this->socket)) {
-            $line = fgets($this->socket, 8192);
-            if ($line === false) {
+        do {
+            $chunk = fread($this->socket, 8192);
+            if ($chunk === false || $chunk === '') {
                 $meta = stream_get_meta_data($this->socket);
                 if ($meta['timed_out']) {
-                    throw new Exception('Timeout while reading TS3 response');
+                    throw new Exception('Timeout reading TS3 response (cmd: ' . strtok($cmd, ' ') . ')');
                 }
                 break;
             }
-            $response .= $line;
-            if (strncmp($line, 'error id=', 9) === 0) break;
-        }
+            $response .= $chunk;
+        } while (strpos($response, 'error id=') === false);
 
         if (preg_match('/error id=(\d+) msg=([^\r\n]*)/', $response, $m)) {
             $id = (int) $m[1];
@@ -123,8 +133,7 @@ class TeamSpeak3Query
                 throw new Exception('TS3: ' . $this->unescape(trim($m[2])) . " (id={$id})");
             }
         }
-        // Strip the trailing "error id=0 msg=ok" line; return only data.
-        $body = preg_replace('/\s*error id=\d+ msg=[^\r\n]*[\r\n]*$/', '', $response);
+        $body = preg_replace('/\s*error id=\d+ msg=[^\r\n]*[\r\n]*/', '', $response);
         return trim($body);
     }
 

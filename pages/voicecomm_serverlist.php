@@ -61,8 +61,8 @@ For current support and updates:
 		if ($ts_servers) {
 			require_once(PAGE_PATH . '/teamspeak_class.php');
 			foreach ($ts_servers as $ts_server) {
-				$ts3   = new TeamSpeak3Query($ts_server['addr'], $ts_server['queryPort'], $ts_server['UDPPort'], 2);
-				$tsRes = $ts3->query();
+				$ts3   = new TeamSpeak3Query($ts_server['addr'], $ts_server['queryPort'], $ts_server['UDPPort'], 5);
+				$tsRes = $ts3->query(60);
 
 				if ($tsRes['error']) {
 					$ts_channels = 'err';
@@ -75,7 +75,6 @@ For current support and updates:
 					$realUsers   = 0;
 					foreach ($tsRes['clients'] as $c) {
 						if ((int)($c['client_type'] ?? 0) !== 0) continue;
-						if (($c['client_nickname'] ?? '') === 'HLstatsZ-Viewer') continue;
 						$realUsers++;
 					}
 					$ts_slots = $realUsers . '/' . (int)($si['virtualserver_maxclients'] ?? 0);
@@ -89,7 +88,7 @@ For current support and updates:
 				<span class="hlstats-name"><a href="<?php echo $g_options['scripturl'] . "?mode=teamspeak&amp;game=$game&amp;tsId=".$ts_server['serverId']; ?>"><?php echo htmlspecialchars(trim($ts_server['name'])); ?></a></span>
 			</td>
 			<td class="hide">
-				<a href="ts3server://<?php echo htmlspecialchars($ts_server['addr']); ?>?port=<?php echo (int)$ts_port; ?>&amp;nickname=WebGuest"><?php echo htmlspecialchars($ts_link); ?></a>
+				<a href="ts3server://<?php echo htmlspecialchars($ts_server['addr']); ?>?port=<?php echo (int)$ts_port; ?><?php if (!empty($ts_server['password'])) echo '&amp;password=' . urlencode($ts_server['password']); ?>&amp;nickname=<?php echo urlencode($tsNickname ?? 'WebGuest'); ?>"><?php echo htmlspecialchars($ts_link); ?></a>
 			</td>
 			<td class="hide">
 				<?php echo $ts_server['password']; ?>
@@ -113,14 +112,28 @@ For current support and updates:
 				$dc_channels = '-';
 				$dc_slots    = '-';
 				$dc_invite   = '';
-				$widget_url  = 'https://discord.com/api/guilds/' . urlencode($dc_server['addr']) . '/widget.json';
-				$ctx = stream_context_create(['http' => ['timeout' => 3, 'ignore_errors' => true]]);
-				$widget_json = @file_get_contents($widget_url, false, $ctx);
-				if ($widget_json !== false) {
-					$widget = json_decode($widget_json, true);
-					if (isset($widget['channels']))       $dc_channels = count($widget['channels']);
-					if (isset($widget['presence_count'])) $dc_slots    = $widget['presence_count'] . ' online';
-					if (isset($widget['instant_invite'])) $dc_invite   = $widget['instant_invite'];
+
+				$dc_cache_ttl  = 60;
+				$dc_cache_file = sys_get_temp_dir() . '/hlstatsz_dc_' . md5($dc_server['addr']) . '.json';
+				$dc_widget     = null;
+				if (is_file($dc_cache_file) && (time() - filemtime($dc_cache_file)) < $dc_cache_ttl) {
+					$dc_widget = json_decode(file_get_contents($dc_cache_file), true);
+				}
+				if (!is_array($dc_widget)) {
+					$widget_url  = 'https://discord.com/api/guilds/' . urlencode($dc_server['addr']) . '/widget.json';
+					$ctx = stream_context_create(['http' => ['timeout' => 3, 'ignore_errors' => true]]);
+					$widget_json = @file_get_contents($widget_url, false, $ctx);
+					if ($widget_json !== false) {
+						$dc_widget = json_decode($widget_json, true);
+						if (is_array($dc_widget)) {
+							@file_put_contents($dc_cache_file, json_encode($dc_widget), LOCK_EX);
+						}
+					}
+				}
+				if (is_array($dc_widget)) {
+					if (isset($dc_widget['channels']))       $dc_channels = count($dc_widget['channels']);
+					if (isset($dc_widget['presence_count'])) $dc_slots    = $dc_widget['presence_count'] . ' online';
+					if (isset($dc_widget['instant_invite'])) $dc_invite   = $dc_widget['instant_invite'];
 				}
 ?>
 		<tr>

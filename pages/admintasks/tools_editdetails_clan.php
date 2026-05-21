@@ -68,7 +68,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 	echo "</span>";
 	
 	printSectionTitle('<span>'.$data['tag'].'</span><span>'.
-						'<a href="' . $g_options['scripturl'] . '?mode=claninfo&amp;clan=$id&amp;' . strip_tags(session_id()) . '">'.
+						'<a href="' . $g_options['scripturl'] . "?mode=claninfo&amp;clan=$id&amp;" . strip_tags(session_id()) . '">'.
 						'(View Clan Details)</a></span>');
 
 

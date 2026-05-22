@@ -77,7 +77,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 ?>
 
 		<tr>
-			<td class="hlstats-name left"><?= $rowdata['name'] ?></td>
+			<td class="hlstats-name left"><?= htmlspecialchars(html_entity_decode($rowdata['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?></td>
 			<td><?= $addr ?></td>
 			<td><?= $rowdata['act_map'] ?></td>
 			<td>

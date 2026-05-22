@@ -26,9 +26,10 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 	$edlist->columns[] = new EditListColumn('UDPPort', 'Voice Port (TS3 only)', 6, false, 'numeric', '9987', 64);
 	$edlist->columns[] = new EditListColumn('queryPort', 'Query Port (TS3 only)', 6, false, 'numeric', '10011', 64);
 	$edlist->columns[] = new EditListColumn('descr', 'Notes', 40, false, 'text', '', 64);
-	$edlist->columns[] = new EditListColumn('serverType', 'Server Type', 20, true, 'select', '0/Teamspeak 3;2/Discord');
+	$edlist->columns[] = new EditListColumn('serverType', 'Server Type', 20, true, 'select', '0/Teamspeak 3;1/Steam Community;2/Discord');
 	echo '<div class="panel">';
 	message('warning','Important: The Discord server must have Server Widget enabled (Server Settings > Engagement > Enable Server Widget) for the channel/member data to load');
+	echo '<div class="hlstats-admin-note"><p>Steam Community: set Address / Guild ID to the group URL slug (e.g. <strong>snipezilla</strong> from steamcommunity.com/groups/snipezilla). TS3 port fields are ignored.</p></div>';
 	if ($_POST) {
 		if ($edlist->update())
 			message('success', 'Operation successful.');
@@ -112,7 +113,7 @@ function toggleVoiceCommFields(selectEl) {
 		var name = inputs[i].name;
 		if (!name) continue;
 		var field = name.replace(prefix + '_', '');
-		if (field === 'UDPPort' || field === 'queryPort') {
+		if (field === 'UDPPort' || field === 'queryPort' || field === 'password') {
 			var disable = (type !== '0');
 			inputs[i].disabled = disable;
 			inputs[i].style.opacity = disable ? '0.3' : '1';

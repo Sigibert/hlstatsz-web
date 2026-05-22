@@ -209,7 +209,7 @@ if ($playerdata['country']) {
 }
 
 if ($playerdata['clan']) {
-    $clan = '<a href="' . $g_options['scripturl'] . '?mode=claninfo&amp;clan=' . $playerdata['clan'] . '">' . htmlspecialchars($playerdata['clan_name'], ENT_COMPAT) . '</a>';
+    $clan = '<a href="' . $g_options['scripturl'] . '?mode=claninfo&amp;clan=' . $playerdata['clan'] . '">' . htmlspecialchars(html_entity_decode($playerdata['clan_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8')) . '</a>';
 } else {
     $clan= '(none)';
 }
@@ -331,7 +331,7 @@ if ($image) {
       <div><div class="label">Favorite Server:</div>
       <div class="value">
         <a href="?game=<?= urlencode($game) ?>&amp;mode=servers&amp;server_id=<?= (int)$favServerId ?>">
-          <?= htmlspecialchars($favServerName, ENT_COMPAT) ?>
+          <?= htmlspecialchars(html_entity_decode($favServerName, ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?>
         </a>
       </div></div>
 

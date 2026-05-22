@@ -164,7 +164,7 @@ $statusClass = $status == 'online'? ' green' : ($status != 'offline'? ' orange':
              title="<?= htmlspecialchars($steamdata['country'] ?? '', ENT_QUOTES) ?>" />
       </span>
 <?php } ?>
-      <span><?= htmlspecialchars($name, ENT_COMPAT) ?></span>
+      <span><?= htmlspecialchars(html_entity_decode($name, ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?></span>
     </div>
 
     <div class="hlstats-meta">

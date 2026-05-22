@@ -148,7 +148,7 @@ $query  = qClansRank();
             echo '
             <tr>
                 <td class="nowrap right">'.$res['rank_position'].'</td>
-                <td class="left'.$class.'" title="'.$sign.$res['last_skill_change'].'"><a href="'.$g_options['scripturl'].'?mode=claninfo&amp;clan='.$res['clan'].'" title=""></span><span class="hlstats-name">'.htmlspecialchars($res['name']).'</span></a></td>
+                <td class="left'.$class.'" title="'.$sign.$res['last_skill_change'].'"><a href="'.$g_options['scripturl'].'?mode=claninfo&amp;clan='.$res['clan'].'" title=""></span><span class="hlstats-name">'.htmlspecialchars(html_entity_decode($res['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8')).'</span></a></td>
                 <td class="nowrap">'.htmlspecialchars($res['tag']).'</td>'
              .($g_options['rankingtype'] != 'kills' ?
                 ('<td class="nowrap">'.nf($res['skill']).'</td>'):'').

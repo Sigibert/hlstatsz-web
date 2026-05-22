@@ -152,7 +152,8 @@ $valid_modes = array(
 	'countryclans',
 	'countryclansinfo',
 	'teamspeak',
-	'discord'
+	'discord',
+	'steamcommunity'
 );
 
 if ( !in_array($mode, $valid_modes) ) {
@@ -217,7 +218,7 @@ if ((!$realgame || !$realname) && $game)
 	$_SESSION['realname'] = $realname;
 }
 
-if ($mode == 'contents' || $mode == 'teamspeak' || $mode == 'discord') {
+if ($mode == 'contents' || $mode == 'teamspeak' || $mode == 'discord' || $mode == 'steamcommunity') {
     $resultGames = $db->query("
         SELECT
             code,

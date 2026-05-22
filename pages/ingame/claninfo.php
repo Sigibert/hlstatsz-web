@@ -52,8 +52,8 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 	$clandata = $db->fetch_array();
 	$db->free_result();
 	
-	$cl_name = preg_replace(' ', '&nbsp;', htmlspecialchars($clandata['name']));
-	$cl_tag  = preg_replace(' ', '&nbsp;', htmlspecialchars($clandata['tag']));
+	$cl_name = preg_replace(' ', '&nbsp;', htmlspecialchars(html_entity_decode($clandata['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+	$cl_tag  = preg_replace(' ', '&nbsp;', htmlspecialchars(html_entity_decode($clandata['tag'], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
 	$cl_full = "$cl_tag $cl_name";
 	
 	$game = $clandata['game'];
@@ -152,7 +152,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 
             list($favServerId,$favServerName) = $db->fetch_row();
 
-            echo "<a href='hlstats.php?game=$game&amp;mode=servers&amp;server_id=$favServerId'>".htmlspecialchars($favServerName)."</a>";
+            echo "<a href='hlstats.php?game=$game&amp;mode=servers&amp;server_id=$favServerId'>".htmlspecialchars(html_entity_decode($favServerName, ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_COMPAT)."</a>";
             ?>
         </div></div>
 
@@ -344,7 +344,7 @@ echo '<div id="members"><div class="responsive-table">
              if ($g_options['countrydata']) {
                 echo '<span class="hlstats-flag"><img src="'.getFlag($res['flag']).'" alt="'.$res['flag'].'"></span>';
              }
-             echo '<a href="?mode=statsme&amp;player='.$res['playerId'].'" title=""><span class="hlstats-name">'.htmlspecialchars($res['lastName']).' </span></a>
+             echo '<a href="?mode=statsme&amp;player='.$res['playerId'].'" title=""><span class="hlstats-name">'.htmlspecialchars(html_entity_decode($res['lastName'], ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_COMPAT).' </span></a>
              </td>'
             .($g_options['rankingtype'] != 'kills' ? ('<td class="nowrap">'.nf($res['skill']).'</td>'):'').
              '<td class="nowrap">'.$res['kills'].'</td>

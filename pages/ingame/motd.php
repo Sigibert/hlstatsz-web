@@ -187,7 +187,7 @@ echo '
                   if ($g_options['countrydata']) {
                    echo '<span class="hlstats-flag"><img src="'.getFlag($res['flag']).'" title="'.$res['country'].'" alt="'.$res['flag'].'"></span>';
                   }
-                   echo '<a href="ingame.php?mode=statsme&amp;player='.$res['playerId'].'&game='.$game.'" title=""><span class="hlstats-name">'.htmlspecialchars($res['lastName']).'&nbsp;</span></a>
+                   echo '<a href="ingame.php?mode=statsme&amp;player='.$res['playerId'].'&game='.$game.'" title=""><span class="hlstats-name">'.htmlspecialchars(html_entity_decode($res['lastName'], ENT_QUOTES | ENT_HTML5, 'UTF-8')).'&nbsp;</span></a>
                 </td>'
                .($g_options['rankingtype'] != 'kills' ? ('<td class="nowrap">'.nf($res['skill']).'</td>'):'').
                 '<td class="nowrap">'.nf($res['kills']).'</td>
@@ -333,7 +333,7 @@ $query  = qClansRank();
             echo '
             <tr>
                 <td class="nowrap right">'.$res['rank_position'].'</td>
-                <td class="left'.$class.'" title="'.$sign.$res['last_skill_change'].'"><a href="'.$g_options['scripturl'].'?mode=claninfo&amp;clan='.$res['clan'].'" title=""></span><span class="hlstats-name">'.htmlspecialchars($res['name']).'</span></a></td>
+                <td class="left'.$class.'" title="'.$sign.$res['last_skill_change'].'"><a href="'.$g_options['scripturl'].'?mode=claninfo&amp;clan='.$res['clan'].'" title=""></span><span class="hlstats-name">'.htmlspecialchars(html_entity_decode($res['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8')).'</span></a></td>
                 <td class="nowrap">'.htmlspecialchars($res['tag']).'</td>'
              .($g_options['rankingtype'] != 'kills' ?
                 ('<td class="nowrap">'.nf($res['skill']).'</td>'):'').
@@ -422,7 +422,7 @@ printSectionTitle('Participating Servers');
 ?>
 
 		<tr>
-			<td class="hlstats-name left"><?= $rowdata['name'] ?></td>
+			<td class="hlstats-name left"><?= htmlspecialchars(html_entity_decode($rowdata['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?></td>
 			<td><?= $addr ?></td>
 			<td><?= $rowdata['act_map'] ?></td>
 			<td>

@@ -309,7 +309,10 @@ td.red::after,
 .red{
   color:#df352d;
 }
-
+td.blue::after,
+.blue{
+  color:#62a7e3;
+}
 /* Chrome, Safari, Edge, Opera */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
@@ -741,8 +744,10 @@ button.svg:hover svg{
 }
 .hlstats-icon img{
   height:22px;
- /* width: 22px;*/
   margin-right: 8px;
+}
+.hlstats-icon.small img{
+  height:18px;
 }
 .hlstats-name{
   font-size:13px;
@@ -1740,6 +1745,102 @@ display: flex;
 }
 
 .hlstats-filter-actions input{ flex: 1; }
+
+/* =======================
+   Steam Community Group
+   ======================= */
+.hlstats-steam-group {
+  border: var(--card-border);
+  border-radius: 6px;
+  margin-bottom: 15px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.hlstats-steam-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.hlstats-steam-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 72px;
+  padding: 8px 14px;
+  background: var(--table-td-bg-even);
+  border-radius: 6px;
+  border: var(--card-border);
+}
+
+.sc-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sc-stat-label {
+  font-size: 10px;
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-top: 3px;
+}
+
+.hlstats-steam-descr {
+  margin: 8px 0 0;
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.hlstats-steam-summary {
+  padding: 14px 20px;
+  font-size: 13px;
+  line-height: 1.65;
+  border-top: var(--card-border);
+}
+
+.hlstats-steam-summary .bb_h1 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 14px 0 5px;
+}
+
+.hlstats-steam-summary .bb_h2 {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 10px 0 4px;
+}
+
+.hlstats-steam-summary .bb_strike {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.hlstats-steam-summary .bb_link_host {
+  font-size: 11px;
+  opacity: 0.55;
+  margin-left: 2px;
+}
+
+.hlstats-steam-summary a {
+  color: var(--a-color);
+}
+
+.hlstats-steam-summary a:hover {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+@media (max-width: 600px) {
+  .hlstats-steam-stat {
+    min-width: 60px;
+    padding: 6px 10px;
+  }
+  .sc-stat-value { font-size: 16px; }
+}
 
 /* ── Responsive ── */
 .show,.show-1,.show-2,.show-3{ display:none; padding: 15px; }

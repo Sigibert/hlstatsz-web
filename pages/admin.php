@@ -1064,7 +1064,7 @@ $adminTaskTitles = array(
 	'adminusers' => 'Admin Users',
 	'games' => 'Games',
 	'clantags' => 'Clan Tag Patterns',
-	'voicecomm' => 'Voice Servers',
+	'voicecomm' => 'Voice / Community Servers',
 	'newserver' => 'Add Server',
 	'servers' => 'Edit Servers',
 	'serversettings' => 'Server Details',
@@ -1154,7 +1154,7 @@ $result = $db->query("
           <li><a href="#" class="hlstats-admin-task" data-url="adminusers">Admin Users</a></li>
           <li><a href="#" class="hlstats-admin-task" data-url="games">Games</a></li>
           <li><a href="#" class="hlstats-admin-task" data-url="clantags">Clan Tag Patterns</a></li>
-          <li><a href="#" class="hlstats-admin-task" data-url="voicecomm">Voice Servers</a></li>
+          <li><a href="#" class="hlstats-admin-task" data-url="voicecomm">Voice / Community Servers</a></li>
         </ul>
       </li>
 

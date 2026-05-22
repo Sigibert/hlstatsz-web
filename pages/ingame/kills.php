@@ -74,7 +74,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 		$pl_shortname = $pl_name;
 	}
 
-	$pl_name = htmlspecialchars($pl_name, ENT_COMPAT);
+	$pl_name = htmlspecialchars(html_entity_decode($pl_name, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
 	$pl_shortname = htmlspecialchars($pl_shortname, ENT_COMPAT);
 	$pl_urlname = urlencode($playerdata['lastName']);
 
@@ -262,7 +262,7 @@ if ($db->num_rows($result)) {
                   if ($g_options['countrydata']) {
                   echo '<span class="hlstats-flag"><img src="'.getFlag($res['flag']).'" title="'.$res['country'].'" alt="'.$res['flag'].'"></span>';
                   }
-             echo '<a href="?mode=statsme&amp;player='.$res['victimId'].'" title=""><span class="hlstats-name">'.htmlspecialchars($res['name']).'&nbsp;</span></a>
+             echo '<a href="?mode=statsme&amp;player='.$res['victimId'].'" title=""><span class="hlstats-name">'.htmlspecialchars(html_entity_decode($res['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8')).'&nbsp;</span></a>
                   </td>
                   <td class="nowrap">'.nf($res['kills']).'</td>
                   <td class="nowrap">'.$res['kpercent'].'%</td>

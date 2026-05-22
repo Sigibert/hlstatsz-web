@@ -1,26 +1,26 @@
-### 📈 Web Frontend for HLstatsZ
-HLstatsZ continues the long lineage of open-source server stats tools for Half-Life and Source games:
-**HLstats → HLstatsX → HLstatsX:CE → HLstatsZ**
+## 📈 Web Frontend for HLstatsZ
 
-- Official version Z
-- **Modern yet familiar** — clean responsive layout that respects the original HLstats look and feel
-- 3 Beautiful Main Themes (Steam blue, Dark and Light)
-- Responsive Design highly customizable with .css, .js and .php files
-- True Rank
-- OpenStreetMap
-- Discord/TeamSpeak 3 voice servers
-- Secure Steam Login
-- Better Admin settings
-- Min PHP 8+
-- Min MySQL/MariaDB 8+ (all queries are fast and optimized)
-- Recommended with [HLstats v2](https://github.com/SnipeZilla/HLSTATS-2)
+- Official Version Z
+- Modern yet familiar — a clean, responsive layout that keeps the original HLstats vibe
+- 9 Themes:  
+  • 3 main themes (Steam Blue, Dark, Light)  
+  • 3 gaming themes (CS2, TF2)  
+  • 1 specialized theme (OLED)  
+  • 1 classic sci-fi theme (Matrix)  
+  • 1 seasonal theme (Winter/Christmas)  
+- Highly customizable responsive design via .css, .js, and .php files
+- **True Rank** system
+- Global, Yesterday, Weekends, and Last <MinActivity> days rankings
+- OpenStreetMap integration
+- TeamSpeak 3, Steam Community, Discord voice/community servers
+- Secure Steam login
+- Improved admin settings
+- Requires PHP 8+ and MySQL/MariaDB 8+ (optimized queries)
+- Recommended with HLSTATSZ
 
-### Requirements
-| Component | Minimum |
-|-----------|---------|
-| PHP | 8.0+ |
-| MySQL / MariaDB | 8.0+ |
-| HLstats daemon | [HLstats v2](https://github.com/SnipeZilla/HLSTATS-2) |
+**Requirements:**   
+PHP 8.0+, MySQL/MariaDB 8.0+, HLstats daemon (HLSTATSZ)
+## 
 
 ### Weapons
 <img width="720" height="701" alt="image" src="https://github.com/user-attachments/assets/6ca66c72-ba13-4173-8e52-c67262e23fb8" />

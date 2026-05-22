@@ -38,7 +38,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 			SELECT
 				SUM(kills),
 				SUM(headshots),
-				count(serverId)		
+				count(serverId)
 			FROM
 				hlstats_Servers
 			WHERE 
@@ -105,7 +105,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 		</tr>
 		<tr>
 			<td class="left"><?php
-				echo '<span class="hlstats-name">'.$rowdata['name'].'</span>';
+				echo '<span class="hlstats-name">'.htmlspecialchars(html_entity_decode($rowdata['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8')).'</span>';
 			?></td>
 			<td><?php
 				echo $addr;

@@ -18,7 +18,7 @@ $db->query("UPDATE hlstats_Options SET `value` = '$webversion' WHERE `keyname` =
 // ---------------------------------------------
 echo "<h3>Chart's Option / update 89 was wrong..</h3>";
 
-echo "<br /><b>Adding chart option for pChart or Chart.js...</b><br />";
+echo "<b>Adding chart option for pChart or Chart.js...</b><br />";
 
 $db->query("INSERT IGNORE INTO hlstats_Options (keyname, value, opttype) VALUES ('chart', '0', 2)");
 

@@ -1,0 +1,154 @@
+<?php
+/*
+HLstatsZ - Real-time player and clan rankings and statistics
+Originally HLstatsX Community Edition by Nicholas Hastings (2008–20XX)
+Based on ELstatsNEO by Malte Bayer, HLstatsX by Tobias Oetzel, and HLstats by Simon Garner
+
+HLstats > HLstatsX > HLstatsX:CE > HLStatsZ
+HLstatsZ continues a long lineage of open-source server stats tools for Half-Life and Source games.
+This version is released under the GNU General Public License v2 or later.
+
+For current support and updates:
+   https://snipezilla.com
+   https://github.com/SnipeZilla
+   https://forums.alliedmods.net/forumdisplay.php?f=156
+*/
+if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
+
+    ob_flush();
+    flush();
+
+    $asterisk = $g_options['DeleteDays'] ? ' *' : '';
+
+if (empty($_GET['ajax']) || $_GET['ajax'] == 'maps') {
+
+
+    $sortorder = $_GET['maps_sortorder'] ?? '';
+    $sort      = $_GET['maps_sort'] ?? '';
+    $sort2     = "kills";
+
+    $col = array("rank_position","map","kills","kpercent","deaths","dpercent","kpd","headshots","hpercent","hpk");
+    if (!in_array($sort, $col)) {
+        $sort      = "rank_position";
+        $sortorder = "ASC";
+    }
+
+    if ($sort == "kills") {
+        $sort2 = "map";
+    }
+
+    $sortorder = strtoupper($sortorder) === "ASC" ? "ASC" : "DESC";
+
+    $start = isset($_GET['maps_page']) ? ((int)$_GET['maps_page'] - 1) * 30 : 0;
+
+    $result = $db->query("
+        WITH map_data AS (
+            SELECT
+                IF(f.map = '', '(Unaccounted)', f.map) AS map,
+                SUM(f.killerId = $player) AS kills,
+                SUM(f.victimId = $player) AS deaths,
+                IFNULL(
+                    ROUND(
+                        SUM(f.killerId = $player) /
+                        IF(SUM(f.victimId = $player) = 0, 1, SUM(f.victimId = $player)),
+                    2),
+                '-') AS kpd,
+                ROUND(SUM(f.killerId = $player) / $realkills * 100, 2) AS kpercent,
+                ROUND(SUM(f.victimId = $player) / $realdeaths * 100, 2) AS dpercent,
+                SUM(f.killerId = $player AND f.headshot = 1) AS headshots,
+                IFNULL(
+                    ROUND(
+                        SUM(f.killerId = $player AND f.headshot = 1) /
+                        SUM(f.killerId = $player),
+                    2),
+                '-') AS hpk,
+                ROUND(
+                    SUM(f.killerId = $player AND f.headshot = 1) /
+                    $realheadshots * 100,
+                2) AS hpercent
+            FROM hlstats_Events_Frags f
+            WHERE f.killerId = $player
+               OR f.victimId = $player
+            GROUP BY f.map
+        ),
+        ranked AS (
+            SELECT *,
+                RANK() OVER (ORDER BY kills DESC, map ASC) AS rank_position,
+                COUNT(*) OVER() AS total_rows
+            FROM map_data
+        )
+        SELECT * FROM ranked
+        ORDER BY
+            $sort $sortorder,
+            $sort2 $sortorder
+        LIMIT 30 OFFSET $start;
+    ");
+
+    if ($db->num_rows($result)) {
+        if (empty($_GET['ajax'])) {
+        printSectionTitle(t('title.map.performance').$asterisk);
+
+?>
+<div id="maps">
+<?php
+}
+?>
+<div class="responsive-table">
+  <table class="maps-table">
+    <tr>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>"><?= headerUrl('rank_position', ['maps_sort','maps_sortorder'], 'maps').t('th.rank') ?></a></th>
+        <th class="hlstats-main-description left<?= isSorted('map',$sort,$sortorder) ?>"><?= headerUrl('map', ['maps_sort','maps_sortorder'], 'maps').t('th.map') ?></a></th>
+        <th class="<?= isSorted('kills',$sort,$sortorder) ?>"><?= headerUrl('kills', ['maps_sort','maps_sortorder'], 'maps').t('th.kills') ?></a></th>
+        <th class="hide-2 meter-ratio <?= isSorted('kpercent',$sort,$sortorder) ?>"><?= headerUrl('kpercent', ['maps_sort','maps_sortorder'], 'maps').t('th.ratio') ?></a></th>
+        <th class="hide<?= isSorted('deaths',$sort,$sortorder) ?>"><?= headerUrl('deaths', ['maps_sort','maps_sortorder'], 'maps').t('th.deaths') ?></a></th>
+        <th class="hide-2 meter-ratio <?= isSorted('dpercent',$sort,$sortorder) ?>"><?= headerUrl('dpercent', ['maps_sort','maps_sortorder'], 'maps').t('th.ratio') ?></a></th>
+        <th class="hide-1<?= isSorted('kpd',$sort,$sortorder) ?>"><?= headerUrl('kpd', ['maps_sort','maps_sortorder'], 'maps').t('th.kd') ?></a></th>
+        <th class="hide-1<?= isSorted('headshots',$sort,$sortorder) ?>"><?= headerUrl('headshots', ['maps_sort','maps_sortorder'], 'maps').t('th.headshots') ?></a></th>
+        <th class="hide-2 meter-ratio <?= isSorted('hpercent',$sort,$sortorder) ?>"><?= headerUrl('hpercent', ['maps_sort','maps_sortorder'], 'maps').t('th.ratio') ?></a></th>
+        <th class="hide-3<?= isSorted('hpk',$sort,$sortorder) ?>"><?= headerUrl('hpk', ['maps_sort','maps_sortorder'], 'maps').t('th.hsk') ?></a></th>
+    </tr>
+    <?php
+
+        while ($res = $db->fetch_array($result))
+        {
+            $total = $res['total_rows'];
+            echo '<tr>
+                  <td class="nowrap right">'.$res['rank_position'].'</td>
+                  <td class="hlstats-main-description left"><a href="?mode=mapinfo&map='.$res['map'].'&game='.$game.'"><span class="hlstats-name">'.htmlspecialchars($res['map']).'</span></a></td>
+                  <td class="nowrap">'.nf($res['kills']).'</td>
+                  <td class="nowrap hide-2">
+                    <div class="meter-container">
+                      <meter min="0" max="100" low="25" high="50" optimum="75" value="'.$res['kpercent'].'"></meter>
+                      <div class="meter-value" id="meterText">'.$res['kpercent'].'%</div>
+                    </div>
+                  <td class="nowrap hide">'.nf($res['deaths']).'</td>
+                  <td class="nowrap hide-2">
+                    <div class="meter-container">
+                      <meter min="0" max="100" low="25" high="50" optimum="75" value="'.$res['dpercent'].'"></meter>
+                      <div class="meter-value" id="meterText">'.$res['dpercent'].'%</div>
+                    </div>
+                  </td>
+                  <td class="nowrap hide-1">'.$res['kpd'].'</td>
+                  <td class="nowrap hide-1">'.nf($res['headshots']).'</td>
+                  <td class="nowrap hide-2">
+                    <div class="meter-container">
+                      <meter min="0" max="100" low="25" high="50" optimum="75" value="'.$res['hpercent'].'"></meter>
+                      <div class="meter-value" id="meterText">'.$res['hpercent'].'%</div>
+                    </div>
+                  </td>
+                  <td class="nowrap hide-3">'.$res['hpk'].'</td>
+                  </tr>';
+        }
+   ?>
+   </table>
+   </div>
+   <?php
+       echo Pagination($total, $_GET['maps_page'] ?? 1, 30, 'maps_page', true, 'maps');
+
+  if (!empty($_GET['ajax'])) exit;
+  ?>
+</div>
+<?php
+    }
+}
+?>

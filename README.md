@@ -1,0 +1,61 @@
+## 📈 Web Frontend for HLstatsZ
+
+- Official Version Z
+- Modern yet familiar — a clean, responsive layout that keeps the original HLstats vibe
+- 9 Themes + 1 MOTD (Simplified Theme):  
+  • 3 main themes (Steam Blue, Dark, Light)  
+  • 3 gaming themes (CS2, TF2)  
+  • 1 specialized theme (OLED)  
+  • 1 classic sci-fi theme (Matrix)  
+  • 1 seasonal theme (Winter/Christmas)  
+- Highly customizable responsive design via .css, .js, and .php files
+- Multi-language support (Front end only)
+- **True Rank** system
+- Global, Yesterday, Weekends, Last 7 days and Last \<MinActivity\> days rankings
+- OpenStreetMap integration
+- TeamSpeak 3, Steam Community, Discord voice/community servers
+- Secure Steam login
+- Improved admin settings
+- Requires PHP 8+ and MySQL/MariaDB 8+ (optimized queries)
+- Recommended with HLSTATSZ
+
+**Requirements:**   
+PHP 8.0+, MySQL/MariaDB 8.0+, HLstats daemon (HLSTATSZ)
+## 
+
+### Weapons
+<img width="720" height="701" alt="image" src="https://github.com/user-attachments/assets/6ca66c72-ba13-4173-8e52-c67262e23fb8" />
+
+### Players
+<img width="1135" height="1010" alt="image" src="https://github.com/user-attachments/assets/31692605-3a53-4260-9038-f9a756c0a0c6" />
+
+### Game
+<img width="1214" height="333" alt="image" src="https://github.com/user-attachments/assets/8cb79d51-5a1e-4b43-ad0f-882dc4ccacb2" />
+
+### Awards
+<img width="1162" height="949" alt="image" src="https://github.com/user-attachments/assets/c8f8fba4-1f9c-43fa-a30d-41864a91eedd" />
+
+### A theme for everyone
+<img width="1166" height="455" alt="image" src="https://github.com/user-attachments/assets/510d22e4-5c29-4685-96f0-12e0298fc8a3" />
+
+### Player Information
+<img width="1165" height="1103" alt="image" src="https://github.com/user-attachments/assets/c060b256-2c79-474e-a2fc-5fb17ddbaf8e" />
+
+### Hitbox (superlogs)
+<img width="1143" height="455" alt="image" src="https://github.com/user-attachments/assets/177f14bb-4b82-4d46-8f43-0995a6ad9514" />
+
+### Admin — Overview
+<img width="1172" height="637" alt="image" src="https://github.com/user-attachments/assets/63e3821c-daf9-4d34-bed7-01efad5acb86" />
+
+### Admin — Server Management
+<img width="1356" height="1307" alt="image" src="https://github.com/user-attachments/assets/526de317-37ce-4a4d-bded-30b17558597d" />
+
+### Discord Channel
+<img width="1609" height="332" alt="image" src="https://github.com/user-attachments/assets/2447aed3-cd20-43ad-a0d5-9e0bb44d5ddd" />
+
+### Responsive, Ajax
+<img width="400" height="832" alt="image" src="https://github.com/user-attachments/assets/a13e6684-e69b-48a4-93c2-11f71ba83627" />
+
+### Translation
+<img width="953" height="408" alt="image" src="https://github.com/user-attachments/assets/2df853e9-e509-4d12-8654-15b350f752cd" />
+

@@ -1,0 +1,152 @@
+<?php
+/*
+HLstatsZ - Real-time player and clan rankings and statistics
+Originally HLstatsX Community Edition by Nicholas Hastings (2008–20XX)
+Based on ELstatsNEO by Malte Bayer, HLstatsX by Tobias Oetzel, and HLstats by Simon Garner
+
+HLstats > HLstatsX > HLstatsX:CE > HLStatsZ
+HLstatsZ continues a long lineage of open-source server stats tools for Half-Life and Source games.
+This version is released under the GNU General Public License v2 or later.
+
+For current support and updates:
+   https://snipezilla.com
+   https://github.com/SnipeZilla
+   https://forums.alliedmods.net/forumdisplay.php?f=156
+*/
+if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
+
+	// Ribbon Statistics
+
+	$ribbon =  valid_request($_GET['ribbon'] ?? '', true) or error(t('error.no.uniqueid'));
+
+	$db->query("
+		SELECT r.ribbonName, r.image, r.awardCode, r.awardCount,
+		       a.awardId, a.name AS awardName
+		FROM hlstats_Ribbons r
+		JOIN hlstats_Awards a ON a.code = r.awardCode AND a.game = r.game
+		WHERE r.ribbonId = $ribbon
+	");
+
+	$actiondata = $db->fetch_array();
+	$db->free_result();
+	$act_name  = $actiondata['ribbonName'];
+	$awardmin  = $actiondata['awardCount'];
+	$awardcode = $actiondata['awardCode'];
+	$awardId   = (int)$actiondata['awardId'];
+	$awardName = $actiondata['awardName'];
+	$image     = $actiondata['image'];
+
+    $total = 0;
+
+    $sortorder = $_GET['sortorder'] ?? '';
+    $sort      = $_GET['sort'] ?? '';
+    $sort2     = "playerName";
+
+    $col = array("rank_position","playerName","numawards","awardName");
+    if (!in_array($sort, $col)) {
+        $sort      = "rank_position";
+        $sortorder = "ASC";
+    }
+
+    if ($sort == "playerName") {
+        $sort2 = "numawards";
+    }
+
+    $sortorder = strtoupper($sortorder) === "ASC" ? "ASC" : "DESC";
+
+    $start = isset($_GET['page']) ? ((int)$_GET['page'] - 1) * 30 : 0;
+
+    $result = $db->query("
+        WITH Base AS (
+            SELECT
+                p.flag,
+                p.lastName AS playerName,
+                p.playerId,
+                COUNT(pa.awardId) AS numawards
+            FROM hlstats_Players_Ribbons prb
+            JOIN hlstats_Players p
+                ON p.playerId = prb.playerId AND p.game = '$game'
+            LEFT JOIN hlstats_Players_Awards pa
+                ON pa.playerId = prb.playerId AND pa.game = '$game' AND pa.awardId = $awardId
+            WHERE prb.ribbonId = $ribbon
+              AND p.hideranking <> '1'
+            GROUP BY p.flag, p.lastName, p.playerId
+        ),
+        Ranked AS (
+            SELECT
+                *,
+                RANK() OVER (ORDER BY numawards DESC, playerName ASC) AS rank_position,
+                COUNT(*) OVER () AS total_rows
+            FROM Base
+        )
+        SELECT *
+        FROM Ranked
+        ORDER BY $sort $sortorder,
+                 $sort2 $sortorder,
+                 playerName ASC
+        LIMIT 30 OFFSET $start
+	");
+
+if (!is_ajax()) {
+printSectionTitle(t('title.ribbons.details'));
+?>
+<div class="hlstats-cards-grid">
+  <section class="hlstats-section hlstats-card">
+
+
+<div class="hlstats-award has-winner">
+  <div class="hlstats-award-title"><?= htmlspecialchars($act_name)?></div>
+  <div class="hlstats-award-icon">
+	<?php
+	$img = IMAGE_PATH."/games/$game/ribbons/$image";
+	if (!is_file($img))
+	{
+		$img = IMAGE_PATH.'/award.png';
+	}
+	echo "<img src=\"$img\" alt=\"$act_name\" />";
+    ?></div>
+</div>
+  </section>
+</div>
+
+
+
+<div id="ribboninfo">
+<?php
+}
+?>
+<div class="responsive-table">
+  <table class="players-table">
+    <tr>
+        <th class="hlstats-ranking nowrap<?= isSorted('rank_position',$sort,$sortorder) ?>"><?= headerUrl('rank_position', ['sort','sortorder'], 'ribboninfo') .t('th.rank') ?></a></th>
+        <th class="hlstats-main-description left<?= isSorted('playerName',$sort,$sortorder) ?>"><?= headerUrl('playerName', ['sort','sortorder'], 'ribboninfo') .t('player') ?></a></th>
+        <th class="nowrap<?= isSorted('numawards',$sort,$sortorder) ?>"><?= headerUrl('numawards', ['sort','sortorder'], 'ribboninfo') .t('th.daily.awards') ?></a></th>
+        <th class="nowrap<?= isSorted('awardName',$sort,$sortorder) ?>"><?= headerUrl('awardName', ['sort','sortorder'], 'ribboninfo') .t('name') ?></a></th>
+    </tr>
+    <?php
+        while ($res = $db->fetch_array($result))
+        {
+            $total = $res['total_rows'];
+            echo '<tr>
+                  <td class="nowrap right">'.$res['rank_position'].'</td>
+                  <td class="hlstats-main-description left">
+                      <span class="hlstats-flag"><img src="'.getFlag($res['flag']).'" alt="'.$res['flag'].'"></span>
+                      <a href="?mode=playerinfo&amp;player='.$res['playerId'].'"><span class="hlstats-name">'.htmlspecialchars(html_entity_decode($res['playerName'], ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_COMPAT).'&nbsp;</span></a>
+                  </td>
+                  <td class="nowrap">'.$res['numawards'].' times</td>
+                  <td class="nowrap"><span class="hlstats-name">'.htmlspecialchars($awardName).'</span></td>
+                  </tr>';
+        }
+   ?>
+   </table>
+   </div>
+   <?php
+       echo Pagination($total, $_GET['page'] ?? 1, 30, 'page', true, 'ribboninfo');
+
+  if (is_ajax()) exit;
+  ?>
+</div>
+
+<div class="hlstats-note">
+<a href="?mode=awards&game=<?=$game?>&tab=ribbons#Ribbons">&larr;&nbsp;<?= t('goto.ribbon.stats') ?></a>
+</div>

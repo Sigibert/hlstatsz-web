@@ -1,0 +1,246 @@
+<?php
+/*
+HLstatsZ - Real-time player and clan rankings and statistics
+Originally HLstatsX Community Edition by Nicholas Hastings (2008–20XX)
+Based on ELstatsNEO by Malte Bayer, HLstatsX by Tobias Oetzel, and HLstats by Simon Garner
+
+HLstats > HLstatsX > HLstatsX:CE > HLStatsZ
+HLstatsZ continues a long lineage of open-source server stats tools for Half-Life and Source games.
+This version is released under the GNU General Public License v2 or later.
+
+For current support and updates:
+   https://snipezilla.com
+   https://github.com/SnipeZilla
+   https://forums.alliedmods.net/forumdisplay.php?f=156
+*/
+if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
+
+// Global Server Chat History
+	if (!$game) {
+        error(t('error.no.game'));
+	}
+	$showserver = 0;
+	if (isset($_GET['server_id'])) {
+		$showserver = valid_request(strval($_GET['server_id']), true);
+	}
+
+	if ($showserver == 0) {
+		$whereclause = "hlstats_Servers.game='$game'";
+	} else {
+		$whereclause = "hlstats_Servers.game='$game' AND hlstats_Events_Chat.serverId=$showserver";
+	}
+
+if (!is_ajax()){
+
+    ob_flush();
+    flush();;
+
+	$servername = ' - '.t('all.servers');
+	
+	if ($showserver != 0)
+	{
+		$result=$db->fetch_array
+		(
+			$db->query
+			("
+				SELECT
+					hlstats_Servers.name
+				FROM
+					hlstats_Servers
+				WHERE
+					hlstats_Servers.serverId = ".$db->escape($showserver)."
+			")
+		);
+		$servername = " - " . $result['name'];
+	}
+
+     printSectionTitle(t('title.server.chat') . $servername);
+
+?>
+
+		<div class="hlstats-filter-search">
+
+			<form method="get" action="<?php echo $g_options['scripturl']; ?>">
+				<input type="hidden" name="mode" value="chat" />
+				<input type="hidden" name="game" value="<?php echo $game; ?>" />
+                 <div class="hlstats-filter-row" style="margin-bottom: 10px;">
+                 <label><?= t('show.chat') ?></label>
+				<?php
+
+					$result = $db->query
+					("
+						SELECT
+							hlstats_Servers.serverId,
+							hlstats_Servers.name
+						FROM
+							hlstats_Servers
+						WHERE
+							hlstats_Servers.game='$game'
+						ORDER BY
+							hlstats_Servers.sortorder,
+							hlstats_Servers.name,
+							hlstats_Servers.serverId ASC
+						LIMIT
+							0,
+							50
+					");
+
+					echo '<select name="server_id">
+                    <option value="0">'.t('all.servers').'</option>';
+					$dates = array ();
+					$serverids = array();
+					while ($rowdata = $db->fetch_array())
+					{
+						$serverids[] = $rowdata['serverId'];
+						$dates[] = $rowdata; 
+						if ($showserver == $rowdata['serverId'])
+							echo '<option value="'.$rowdata['serverId'].'" selected>'.htmlspecialchars(html_entity_decode($rowdata['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_COMPAT).'</option>';
+						else
+							echo '<option value="'.$rowdata['serverId'].'">'.htmlspecialchars(html_entity_decode($rowdata['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_COMPAT).'</option>';
+					}
+					echo '</select>';
+					$filter=isset($_REQUEST['filter'])?$_REQUEST['filter']:"";
+				?>
+               </div>
+    <div class="hlstats-filter-row">
+      <label><?= t('filter') ?></label>
+      <div class="hlstats-filter-actions">
+        <input type="text" name="filter" value="<?php echo htmlentities($filter); ?>" />
+        <button class="search" type="submit"><?= t('view') ?></button>
+      </div>
+    </div>
+  </form>
+
+	</div>
+<?php
+}
+			$whereclause2='';
+			if(!empty($filter))
+			{
+				$whereclause2="AND MATCH (hlstats_Events_Chat.message) AGAINST ('" . $db->escape($filter) . "' in BOOLEAN MODE)";
+			}
+			$surl = $g_options['scripturl'];
+
+
+
+
+
+
+    $sortorder = $_GET['sortorder'] ?? '';
+    $sort      = $_GET['sort'] ?? '';
+
+    $col = array("eventTime","lastName","message","serverName","map");
+    if (!in_array($sort, $col)) {
+        $sort      = "eventTime";
+        $sortorder = "DESC";
+    }
+
+    $sortorder = strtoupper($sortorder) === "ASC" ? "ASC" : "DESC";
+
+    $start = isset($_GET['page']) ? ((int)$_GET['page'] - 1) * 30 : 0;
+
+
+
+			$result = $db->query
+			("
+				SELECT
+					hlstats_Events_Chat.eventTime AS eventTime,
+					unhex(replace(hex(hlstats_Players.lastName), 'E280AE', '')) as lastName,
+					IF(hlstats_Events_Chat.message_mode=2, CONCAT('(Team) ', hlstats_Events_Chat.message), IF(hlstats_Events_Chat.message_mode=3, CONCAT('(Squad) ', hlstats_Events_Chat.message), hlstats_Events_Chat.message)) AS message,
+					hlstats_Servers.name AS serverName,
+					hlstats_Events_Chat.playerId,
+					hlstats_Players.flag,
+					hlstats_Events_Chat.map
+				FROM
+					hlstats_Events_Chat
+				INNER JOIN
+					hlstats_Players
+				ON
+					hlstats_Players.playerId = hlstats_Events_Chat.playerId
+				INNER JOIN 
+					hlstats_Servers
+				ON
+					hlstats_Servers.serverId = hlstats_Events_Chat.serverId
+				WHERE
+					$whereclause $whereclause2
+				ORDER BY
+					$sort $sortorder
+				LIMIT
+					30 OFFSET $start
+            ");
+
+			$db->query
+			("
+				SELECT
+		 			count(*)
+				FROM
+					hlstats_Events_Chat
+				INNER JOIN
+					hlstats_Players
+				ON
+					hlstats_Players.playerId = hlstats_Events_Chat.playerId
+				INNER JOIN 
+					hlstats_Servers
+				ON
+					hlstats_Servers.serverId = hlstats_Events_Chat.serverId
+				WHERE
+					$whereclause $whereclause2
+			");
+			if ($db->num_rows() < 1) $numitems = 0;
+			else 
+			{
+				list($numitems) = $db->fetch_row();
+			}
+			$db->free_result();	
+            if (!is_ajax()) {
+               echo '<div id="chats">';
+            }
+if ($numitems) {
+?>
+<div class="responsive-table">
+  <table class="players-table">
+    <tr>
+        <th class="left<?= isSorted('eventTime',$sort,$sortorder) ?>"><?= headerUrl('eventTime', ['sort','sortorder'], 'chats') .t('th.date') ?></a></th>
+        <th class="left<?= isSorted('lastName',$sort,$sortorder) ?>"><?= headerUrl('lastName', ['sort','sortorder'], 'chats') .t('player') ?></a></th>
+        <th class="left<?= isSorted('message',$sort,$sortorder) ?>"><?= headerUrl('message', ['sort','sortorder'], 'chats') .t('th.message') ?></a></th>
+        <?php if ($showserver ) { ?>
+        <th class="<?= isSorted('serverName',$sort,$sortorder) ?>"><?= headerUrl('serverName', ['sort','sortorder'], 'chats') .t('th.server') ?></a></th>
+        <?php } ?>
+        <th class="hide<?= isSorted('map',$sort,$sortorder) ?>"><?= headerUrl('map', ['sort','sortorder'], 'chats') .t('th.map') ?></a></th>
+    </tr>
+    <?php
+
+        while ($res = $db->fetch_array($result))
+        {
+            $html ='<tr>
+                  <td class="nowrap left">'.str_replace(" ","<br>@",$res['eventTime']).'</td>
+                  <td class="left">';
+                    if ($g_options['countrydata']) {
+                    $html .= '<span class="hlstats-flag"><img src="'.getFlag($res['flag']).'" alt="'.$res['flag'].'"></span>';
+                    }
+                    $html .= '<a href="?mode=playerinfo&amp;player='.$res['playerId'].'"><span class="hlstats-name">'.htmlspecialchars(html_entity_decode($res['lastName'], ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_COMPAT).'&nbsp;</span></a>
+                  </td>
+                  <td class="left">'.htmlspecialchars(stripslashes($res['message']), ENT_QUOTES).'</td>';
+            if ($showserver ) {
+                $html .= '<td class="">'.htmlspecialchars(html_entity_decode($res['serverName'], ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_COMPAT).'</td>';
+            }
+              $html .= '<td class="nowrap hide">'.htmlspecialchars($res['map']).'</td>
+                </tr>';
+              echo $html;
+        }
+   ?>
+   </table></div>
+   <?php
+       echo Pagination($numitems, $_GET['page'] ?? 1, 30, 'page');
+  if (is_ajax()) exit;
+} else { echo '<p class="hlstats-no-data"><em>'.t('not.enough.data').'</em></p>'; }
+  ?>
+</div>
+<script>
+Fetch.ini('chats');
+</script>
+<?php if ($g_options['DeleteDays']) { ?>
+<div class="hlstats-note">
+    <?= t('items.deletedays.all', ["{DeleteDays}" => '<strong>'.$g_options['DeleteDays'].'</strong>']) ?>.
+</div>
+<?php } ?>

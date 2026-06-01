@@ -917,8 +917,12 @@ class PropertyPage_Property
 
 function checkVersion() {
 
-    global $g_options;
+    global $db, $g_options;
     $needsupdate = false;
+    $webversion = '1.12.'.$g_options['dbversion'];
+    if (isset($g_options['webversion']) && ($g_options['webversion'] != $webversion)) {
+        $db->query("UPDATE hlstats_Options SET `value` = '$webversion' WHERE `keyname` = 'webversion'");
+    }
     echo '<div class="panel">';
     if (file_exists("./updater/" . ((int)$g_options['dbversion'] + 1) . ".php")) {
         message('warning','Your database needs an upgrade. To perform a Database Update, please go to the Updater page.');

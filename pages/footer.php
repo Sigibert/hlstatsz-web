@@ -26,7 +26,7 @@ if ( !defined('IN_HLSTATS') ) { die('Do not access this file directly'); }
 
     <div class="hlstats-footer-top">
       <div>
-        <a href="https://github.com/SnipeZilla/HLSTATS-2" target="_blank">
+        <a href="<?= $g_options['scripturl'] ?>">
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4800 2002" width="108" height="45">
 	<style>
 		.s0 { fill: var(--logo-color); } 

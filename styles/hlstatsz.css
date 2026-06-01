@@ -425,7 +425,7 @@ input[type=number] {
 
 .hlstats-topright a{
   color: var(--header-top-nav-color);
-  margin-right:10px;
+  margin-left:10px;
 }
 
 .hlstats-topright a:hover{

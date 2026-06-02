@@ -202,7 +202,7 @@ $infoHtml .= '<tr><td class="left"><strong>Server name:</strong></td><td class="
 $infoHtml .= '<tr><td class="left"><strong>Address:</strong></td><td class="left">'
            . '<a href="ts3server://' . htmlspecialchars($uip) . '?port=' . (int) $serverPort . (!empty($s['password']) ? '&amp;password=' . urlencode($s['password']) : '') . '&amp;nickname=' . urlencode($tsNickname) . '">'
            . htmlspecialchars($uip . ':' . $serverPort) . '</a></td></tr>';
-$infoHtml .= '<tr><td class="left"><strong>.'t('ts3.version').'</strong></td><td class="left">' . htmlspecialchars($info['virtualserver_version'] ?? '') . '</td></tr>';
+$infoHtml .= '<tr><td class="left"><strong>'.t('ts3.version').'</strong></td><td class="left">' . htmlspecialchars($info['virtualserver_version'] ?? '') . '</td></tr>';
 $infoHtml .= '<tr><td class="left"><strong>Platform:</strong></td><td class="left">' . htmlspecialchars($info['virtualserver_platform'] ?? '') . '</td></tr>';
 if (!empty($info['virtualserver_welcomemessage'])) {
     $infoHtml .= '<tr><td class="left"><strong>'.t('ts3.welcome').'</strong></td><td class="left">'

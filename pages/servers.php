@@ -142,6 +142,7 @@ if ($g_options['show_google_map'] == 1) {
          <div class="hlstats-chart hlstats-chart-thumb servers"
              data-chart="server-load"
              data-server-id="<?= (int)$server_id ?>"
+             data-realgame="<?= htmlspecialchars($realgame ?? '', ENT_QUOTES) ?>"
              data-range="1">
             <div class="hlstats-chart-canvas"><canvas></canvas></div>
          </div>
@@ -202,6 +203,7 @@ if (!isset($g_options['chart']) || $g_options['chart'] == 0) { //pChart
                 <div class="hlstats-chart hlstats-chart-thumb servers"
                     data-chart="server-load"
                     data-server-id="<?= (int)$server_id ?>"
+                    data-realgame="<?= htmlspecialchars($realgame ?? '', ENT_QUOTES) ?>"
                     data-range="2">
                     <div class="hlstats-chart-range" role="tablist" aria-label="Range">
                         <button type="button" data-range="2" class="active"><?= t('last.week') ?></button>

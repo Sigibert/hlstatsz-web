@@ -145,7 +145,8 @@ printSectionTitle(t('title.servers'));
                 <?php } else { //Chart.js ?>
                 <div class="hlstats-chart hlstats-chart-full servers"
                      data-chart="game-trend"
-                     data-game="<?= htmlspecialchars($game, ENT_QUOTES) ?>">
+                     data-game="<?= htmlspecialchars($game, ENT_QUOTES) ?>"
+                     data-realgame="<?= htmlspecialchars($realgame ?? '', ENT_QUOTES) ?>">
                     <div class="hlstats-chart-canvas"><canvas></canvas></div>
                     <div class="hlstats-chart-caption"></div>
                 </div>
@@ -237,11 +238,12 @@ printSectionTitle(t('title.servers'));
 				<a href="<?php $g_options['scripturl'] ?>?mode=servers&amp;server_id=<?php echo $server_id ?>&amp;game=<?php echo $game ?>" style="text-decoration:none;"><img src="show_graph.php?type=0&amp;game=<?php echo $game; ?>&amp;server_id=<?=$server_id?>" style="border:0px;" class="responsive hide-2" alt="Server Load Graph" data-tooltip="<?= t('view.graphs') ?>" /><span class="show-2"><?= t('view.graphs') ?></span></a>
 
 				<?php } else { //Chart.js ?>
-				<a href="<?= $g_options['scripturl'] ?>?mode=servers&amp;server_id=<?= (int)$server_id ?>&amp;game=<?= htmlspecialchars($game, ENT_QUOTES) ?>"
+				<a href="<?= $g_options['scripturl'] ?>?mode=servers&amp;server_id=<?= (int)$server_id ?>&amp;game=<?= htmlspecialchars($game, ENT_QUOTES) ?>&amp;realgame=<?= htmlspecialchars($realgame ?? '', ENT_QUOTES) ?>"
 				   style="text-decoration:none;" data-tooltip="<?= t('view.graphs') ?>">
 				    <div class="hlstats-chart hlstats-chart-thumb hide-2 servers"
 				         data-chart="server-load"
 				         data-server-id="<?= (int)$server_id ?>"
+				         data-realgame="<?= htmlspecialchars($realgame ?? '', ENT_QUOTES) ?>"
 				         data-range="1">
 				        <div class="hlstats-chart-canvas"><canvas></canvas></div>
 				    </div>

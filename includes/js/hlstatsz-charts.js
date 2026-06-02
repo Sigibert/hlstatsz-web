@@ -419,11 +419,12 @@
 
         var rangeRoot    = root.querySelector('.hlstats-chart-range');
         var currentRange = root.getAttribute('data-range') || '1';
+        var rgame        = root.getAttribute('data-realgame') || '';
 
         function draw(r) {
             root.classList.add('is-loading');
             var textColor = getChartTextColor(root);
-            fetchJson({ type: 0, server_id: serverId, range: r })
+            fetchJson({ type: 0, server_id: serverId, range: r, realgame: rgame })
                 .then(function (json) {
                     destroyChart(canvas);
                     canvas._chart = new global.Chart(canvas, serverLoadConfig(json, r, textColor));
@@ -560,11 +561,12 @@
     function renderGameTrend(root) {
         var canvas = root.querySelector('canvas');
         if (!canvas) return;
-        var game = root.getAttribute('data-game') || '';
+        var game  = root.getAttribute('data-game') || '';
+        var rgame = root.getAttribute('data-realgame') || '';
 
         var textColor = getChartTextColor(root);
         root.classList.add('is-loading');
-        fetchJson({ type: 1, game: game })
+        fetchJson({ type: 1, game: game, realgame: rgame })
             .then(function (json) {
                 destroyChart(canvas);
                 canvas._chart = new global.Chart(canvas, gameTrendConfig(json, textColor));

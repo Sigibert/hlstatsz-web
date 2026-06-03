@@ -56,7 +56,7 @@ message("warning","Options with an asterisk (*) beside them require a restart of
 			
 			foreach ($this->options as $opt)
 			{
-				if (($this->title == 'Fonts') || ($this->title == 'General') || ($this->title == 'Footer Links')) {
+				if (($this->title == 'Fonts') || ($this->title == 'General') || (str_contains($this->title,'Footer Links'))) {
 					$optval = $_POST[$opt->name];
 					$search_pattern  = array('/script/i', '/;/', '/%/');
 					$replace_pattern = array('', '', '');
